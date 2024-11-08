@@ -13,6 +13,7 @@ SOURCES = 	seed.cpp \
 			../../Helpers/Cryptography/hash.cpp \
 			../../Controllers/Users/users.cpp \
 			../../Logger/logger.cpp \
+			../../Helpers/Database/db_connection.cpp \
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

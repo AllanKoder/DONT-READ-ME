@@ -6,28 +6,13 @@
 #include "../../Logger/logger.h"
 #include "../../Controllers/Users/users.h"
 #include "../../Views/layout/app.view.h"
+#include "../../Helpers/Database/db_connection.h"
 
 void seed()
 {
     try
     {
-        // Seed the database with users
-        // Instantiate Driver
-        sql::Driver *driver = sql::mariadb::get_driver_instance();
-
-        // Configure Connection
-        sql::SQLString url("jdbc:mariadb://localhost:3306/blog");
-
-        // Use a properties map for the other connection options
-        sql::Properties properties({
-            {"user", "admin"},
-            {"password", "admin"},
-        });
-
-        // Establish Connection
-        // Use a smart pointer for extra safety
-        std::unique_ptr<sql::Connection> connection(driver->connect(url, properties));
-
+        auto connection = Database::GetConnection();
         // Create a user
         auto user = Controllers::Requests::CreateUserRequest(
             "John",
