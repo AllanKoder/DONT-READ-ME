@@ -5,10 +5,12 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 
 # Linker flags for libraries
-LDFLAGS = -lmariadbcpp -lcgicc
+LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
 SOURCES = 	seed.cpp \
+			../../Helpers/Cryptography/hash.cpp \
+			../../Controllers/Users/users.cpp \
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
