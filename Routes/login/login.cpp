@@ -1,8 +1,10 @@
 #include <iostream>
 #include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/HTMLClasses.h>
+#include "../../Views/sections/login/login.view.h"
 
-int main() {
+int main()
+{
     // Output HTTP headers for HTML
     std::cout << cgicc::HTTPHTMLHeader() << std::endl;
     
@@ -11,8 +13,8 @@ int main() {
     std::cout << cgicc::head() << cgicc::title("Hello World") << cgicc::head() << std::endl;
     std::cout << cgicc::body() << std::endl;
 
-    // Output content
-    std::cout << cgicc::h1("Hello, Web, TEST!") << std::endl;
+    // Output content from the login.view.h file
+    Views::login();
 
     // End HTML document
     std::cout << cgicc::body() << cgicc::html() << std::endl;

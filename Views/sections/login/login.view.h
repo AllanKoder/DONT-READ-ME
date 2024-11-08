@@ -1,0 +1,4 @@
+namespace Views
+{
+    void login();
+}
