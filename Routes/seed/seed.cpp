@@ -1,7 +1,11 @@
 #include <iostream>
 #include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/HTMLClasses.h>
-#include "../../Views/sections/login/login.view.h"
+#include <mariadb/conncpp.hpp>
+
+void seed()
+{
+}
 
 int main()
 {
@@ -13,8 +17,9 @@ int main()
     std::cout << cgicc::head() << cgicc::title("Hello World") << cgicc::head() << std::endl;
     std::cout << cgicc::body() << std::endl;
 
-    // Output content from the login.view.h file
-    Views::login();
+    // Print seeded
+    seed();
+    std::cout << "Seeded.\n";
 
     // End HTML document
     std::cout << cgicc::body() << cgicc::html() << std::endl;

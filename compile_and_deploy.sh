@@ -1,8 +1,11 @@
 #!/bin/bash
 # A script to help the deployment process of files
 
+# Store the initial working directory
+INITIAL_DIR=$(pwd)
+
 # Base directory where the C++ source files are located
-BASE_DIR="Routes"
+BASE_DIR="$INITIAL_DIR/Routes"
 # Destination directory for CGI executables
 CGI_BIN="/usr/lib/cgi-bin"
 
@@ -14,7 +17,7 @@ find "$BASE_DIR" -name "*.cpp" | while read -r cpp_file; do
     base_name=$(basename "$cpp_file" .cpp)
 
     # Go to the directory containing the current .cpp file
-    cd "$dir" || { echo "Failed to change to directory: $dir"; exit 1; }
+    cd "$dir" || { echo "Failed to change to directory: $dir"; continue; }
 
     # Compile using make
     make
@@ -31,6 +34,9 @@ find "$BASE_DIR" -name "*.cpp" | while read -r cpp_file; do
     else
         echo "Failed to compile: $cpp_file"
     fi
+
+    # Return to the initial directory
+    cd "$INITIAL_DIR" || { echo "Failed to return to initial directory"; exit 1; }
 done
 
 echo "All done!"

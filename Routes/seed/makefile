@@ -8,14 +8,13 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 LDFLAGS = -lmariadbcpp -lcgicc
 
 # Source files
-SOURCES = 	login.cpp \
-			../../Views/sections/login/login.view.cpp
+SOURCES = 	seed.cpp \
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Executable name
-EXECUTABLE = login.cgi
+EXECUTABLE = seed.cgi
 
 # Default target
 all: $(EXECUTABLE)
