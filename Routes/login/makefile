@@ -9,7 +9,8 @@ LDFLAGS = -lmariadbcpp -lcgicc
 
 # Source files
 SOURCES = 	login.cpp \
-			../../Views/sections/login/login.view.cpp
+			../../Views/sections/login/login.view.cpp \
+			../../Views/layout/app.view.cpp \
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

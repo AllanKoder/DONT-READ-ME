@@ -9,6 +9,7 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
 SOURCES = 	seed.cpp \
+			../../Views/layout/app.view.cpp \
 			../../Helpers/Cryptography/hash.cpp \
 			../../Controllers/Users/users.cpp \
 			../../Logger/logger.cpp \
