@@ -15,8 +15,7 @@ void seed()
         auto connection = Database::GetConnection();
         // Create a user
         auto user = Controllers::Requests::CreateUserRequest(
-            "John",
-            "Lennon",
+            "John Lennon",
             "john.lennon@apple.com",
             "password",
             "user");
