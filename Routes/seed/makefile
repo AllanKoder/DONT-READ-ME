@@ -11,6 +11,7 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 SOURCES = 	seed.cpp \
 			../../Helpers/Cryptography/hash.cpp \
 			../../Controllers/Users/users.cpp \
+			../../Logger/logger.cpp \
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

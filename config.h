@@ -13,4 +13,6 @@
 #define PASSWORD_HASH_LENGTH 255
 #define PERMISSIONS_LEVEL_LENGTH 20
 
+#define LOG_FILE_LOCATION "/var/log/blog_app.log"
+
 #endif

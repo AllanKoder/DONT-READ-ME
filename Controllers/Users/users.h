@@ -7,7 +7,7 @@
 
 namespace Controllers
 {
-    void createUser(const std::unique_ptr<sql::Connection>& conn, const Requests::CreateUserRequest& user);
+    void createUser(const std::unique_ptr<sql::Connection>& connection, const Requests::CreateUserRequest& user);
 }
 
 #endif
