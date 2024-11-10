@@ -1,4 +1,14 @@
+#ifndef LOGIN_VIEW_H
+#define LOGIN_VIEW_H
+#include "../../views.h"
+
 namespace Views
 {
-    void login();
+    class Login : public View
+    {
+    public:
+        Login();
+    };
 }
+
+#endif

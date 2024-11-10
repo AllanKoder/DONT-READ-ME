@@ -3,12 +3,13 @@
 
 #include <string>
 #include <cgicc/CgiEnvironment.h>
+#include "cgicc/Cgicc.h"
+#include <optional>
 
 namespace Session
 {   
-    bool isAuth();
-    bool attempt(std::string username, std::string password);
-    bool isValidToken(cgicc::CgiEnvironment environment);
+    std::optional<int> userId();
+    bool login(std::string username, std::string password);
 }
 
 #endif

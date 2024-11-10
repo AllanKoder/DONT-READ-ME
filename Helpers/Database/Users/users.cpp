@@ -2,7 +2,7 @@
 #include <memory>
 #include <mariadb/conncpp.hpp>
 #include "create_user_request.h"
-#include "../../Cryptography/hash.h"
+#include "../../Cryptography/crypto.h"
 #include "../db_connection.h"
 
 namespace Database
@@ -18,9 +18,9 @@ namespace Database
         );
 
         statement->setString(1, user.username);
-        statement->setString(3, user.email);
-        statement->setString(4, Hash::hash(user.password, user.username));
-        statement->setString(5, user.permissions_level);
+        statement->setString(2, user.email);
+        statement->setString(3, Crypto::hash(user.password, user.username));
+        statement->setString(4, user.permissions_level);
 
         statement->executeUpdate();
 

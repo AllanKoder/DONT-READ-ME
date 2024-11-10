@@ -13,6 +13,11 @@
 #define PASSWORD_HASH_LENGTH 255
 #define PERMISSIONS_LEVEL_LENGTH 20
 
+// Session
+#define SESSION_TOKEN_SIZE 150
+#define TOKEN_EXPIRY_TIME 24*60*60
+
+
 #define LOG_FILE_LOCATION "/var/log/blog_app.log"
 
 #endif
