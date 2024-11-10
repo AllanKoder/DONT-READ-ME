@@ -9,12 +9,14 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
 SOURCES = 	seed.cpp \
-			../../Views/layout/app.view.cpp \
-			../../Helpers/Cryptography/hash.cpp \
-			../../Controllers/Users/users.cpp \
 			../../Logger/logger.cpp \
+			../../Controllers/Seeding/seed.cpp \
 			../../Helpers/Database/db_connection.cpp \
-
+			../../Helpers/Cryptography/hash.cpp \
+			../../Helpers/Database/Users/users.cpp \
+			../../Views/sections/seed/seed.view.cpp \
+			../../Views/views.cpp \
+			
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
 

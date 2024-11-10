@@ -1,9 +1,9 @@
 #ifndef CREATE_USER_REQUEST_H
 #define CREATE_USER_REQUEST_H
 
-#include "../../config.h"
+#include "../../../config.h"
 
-namespace Controllers::Requests
+namespace Database::Requests
 {
     class CreateUserRequest {
     public:

@@ -10,7 +10,7 @@ namespace Session
     {
     }
 
-    bool isValidUsernamePassword(std::string username, std::string password)
+    bool attempt(std::string username, std::string password)
     {
         auto connection = Database::GetConnection();
 
@@ -38,7 +38,6 @@ namespace Session
         }
     }
 
-    std::string getTokenOrCreate(std::string username, std::string password);
     bool isValidToken(cgicc::CgiEnvironment environment);
 
 }

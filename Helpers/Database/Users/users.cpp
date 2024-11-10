@@ -2,12 +2,15 @@
 #include <memory>
 #include <mariadb/conncpp.hpp>
 #include "create_user_request.h"
-#include "../../Helpers/Cryptography/hash.h"
+#include "../../Cryptography/hash.h"
+#include "../db_connection.h"
 
-namespace Controllers
+namespace Database
 {
-    void createUser(const std::unique_ptr<sql::Connection> &connection, const Requests::CreateUserRequest &user)
+    void createUser(const Requests::CreateUserRequest &user)
     {
+        auto connection = Database::GetConnection();
+
         std::unique_ptr<sql::PreparedStatement> statement(
             connection->prepareStatement(
                 "INSERT INTO users (username, email, password_hash, permission_level) VALUES (?, ?, ?, ?)"
@@ -20,5 +23,7 @@ namespace Controllers
         statement->setString(5, user.permissions_level);
 
         statement->executeUpdate();
+
+        connection->close();
     }
 }
