@@ -1,15 +1,28 @@
 #include "views.h"
 #include <iostream>
-#include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/HTMLClasses.h>
 
 namespace Views
 {
+    View::View()
+    {
+        cookies.clear();
+    }
+
+    cgicc::HTTPHTMLHeader View::getHeader()
+    {
+        cgicc::HTTPHTMLHeader header = cgicc::HTTPHTMLHeader();
+        for (auto cookie : cookies)
+        {
+            header.setCookie(cookie);
+        }
+        return header;
+    }
+
     void View::render()
     {
         // Output HTTP headers
-        std::cout << cgicc::HTTPHTMLHeader() << std::endl;
-        std::cout << headers;
+        std::cout << getHeader() << std::endl;
         
         // Start HTML document
         std::cout << cgicc::html().set("lang", "en") << std::endl;
@@ -30,9 +43,9 @@ namespace Views
         return *this;
     }
 
-    View& View::setCookie(std::string cookie)
+    View& View::setCookie(cgicc::HTTPCookie cookie)
     {
-        headers += "Set-Cookie: " + cookie + "\r\n";
+        cookies.push_back(cookie);
         return *this;
     }
 

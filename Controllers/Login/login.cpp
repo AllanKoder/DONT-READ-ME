@@ -6,6 +6,7 @@
 #include "../../Helpers/Database/Users/users.h"
 #include "../../Helpers/Session/session.h"
 #include <iostream>
+#include <cgicc/HTTPCookie.h>
 
 namespace Controllers
 {
@@ -13,7 +14,7 @@ namespace Controllers
     {
         if (Session::login("user", "password"))
         {
-            return Views::Seed().setTitle("Foo");
+            return Views::Seed().setTitle("Foo").setCookie(cgicc::HTTPCookie("count","1"));
         }
         else
         {
