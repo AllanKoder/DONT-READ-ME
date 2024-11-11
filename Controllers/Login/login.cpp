@@ -7,14 +7,18 @@
 #include "../../Helpers/Session/session.h"
 #include <iostream>
 #include <cgicc/HTTPCookie.h>
+#include <optional>
+#include <string>
 
 namespace Controllers
 {
     Views::View login()
     {
-        if (Session::login("user", "password"))
+        std::optional<std::string> token = Session::login("user", "password");
+        if (token.has_value())
         {
-            return Views::Seed().setTitle("Foo").setCookie(cgicc::HTTPCookie("count","1"));
+            std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly";
+            return Views::Seed().setTitle("Foo").setCookie(cookie);
         }
         else
         {

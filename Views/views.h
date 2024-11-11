@@ -14,14 +14,14 @@ namespace Views
         std::string title;
         std::string headers;
         std::string body;
-        std::vector<cgicc::HTTPCookie> cookies;
-        cgicc::HTTPHTMLHeader getHeader();
+        std::vector<std::string> cookies;
+        std::string getHeader();
         View();
          
     public:
         void render();
         View& setHeader(std::string header);
-        View& setCookie(cgicc::HTTPCookie cookie);
+        View& setCookie(std::string cookie);
         View& setTitle(std::string newTitle);
         View& setBody(std::string body);
     };   

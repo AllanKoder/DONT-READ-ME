@@ -40,7 +40,7 @@ namespace Session
     }
 
     // Function to log in a user with username and password
-    bool login(std::string username, std::string password)
+    std::optional<std::string> login(std::string username, std::string password)
     {
         Logger::logInfo("Reached login() function");
 
@@ -84,11 +84,11 @@ namespace Session
 
                 connection->close();
                 // Login successful
-                return true; 
+                return token; 
             }
             
             connection->close();
-            return false; // Login failed: no matching username/password found
+            return {}; // Login failed: no matching username/password found
         }
         catch (sql::SQLException &e)
         {
@@ -96,7 +96,7 @@ namespace Session
             output += e.what(); // Log any SQL exceptions that occur during execution
             Logger::logCritical(output);
             connection->close();
-            return false; // Return false on exception
+            return {}; // Return false on exception
         }
     }
 }

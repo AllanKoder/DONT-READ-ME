@@ -1,6 +1,8 @@
 #include "views.h"
 #include <iostream>
 #include <cgicc/HTMLClasses.h>
+#include "../Logger/logger.h"
+#include <sstream>   
 
 namespace Views
 {
@@ -9,14 +11,16 @@ namespace Views
         cookies.clear();
     }
 
-    cgicc::HTTPHTMLHeader View::getHeader()
+    std::string View::getHeader()
     {
-        cgicc::HTTPHTMLHeader header = cgicc::HTTPHTMLHeader();
+        std::string outputHeader = "Content-Type: text/html\n";
         for (auto cookie : cookies)
         {
-            header.setCookie(cookie);
+            outputHeader += "Set-Cookie: " + cookie + "\n";
         }
-        return header;
+        
+        outputHeader += "\n\n";
+        return outputHeader;
     }
 
     void View::render()
@@ -43,7 +47,7 @@ namespace Views
         return *this;
     }
 
-    View& View::setCookie(cgicc::HTTPCookie cookie)
+    View& View::setCookie(std::string cookie)
     {
         cookies.push_back(cookie);
         return *this;
