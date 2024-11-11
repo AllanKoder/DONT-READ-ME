@@ -16,9 +16,9 @@ namespace Views
         std::string body;
         std::vector<std::string> cookies;
         std::string getHeader();
-        View();
          
     public:
+        View();
         void render();
         View& setHeader(std::string header);
         View& setCookie(std::string cookie);

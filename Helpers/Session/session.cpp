@@ -5,7 +5,6 @@
 #include "../Cryptography/crypto.h"
 #include "../Database/db_connection.h"
 #include <cgicc/Cgicc.h>
-#include <cgicc/HTTPCookie.h>
 
 namespace Session
 {
@@ -73,13 +72,6 @@ namespace Session
                 // Create a session token for this user ID
                 std::string token = createSessionToken(userId);
 
-                // Set the SESSION_TOKEN cookie with the generated token
-                cgicc::HTTPCookie cookie("SESSION_TOKEN", token);
-                // Set cookie expiration to 1 hour
-                cookie.setMaxAge(3600); 
-                // Set path for which this cookie is valid
-                cookie.setPath("/");
-
                 Logger::logInfo("Created Cookie: " + token);
 
                 connection->close();
@@ -87,6 +79,7 @@ namespace Session
                 return token; 
             }
             
+            Logger::logWarning("Cannot find the user and password given");
             connection->close();
             return {}; // Login failed: no matching username/password found
         }
