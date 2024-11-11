@@ -5,6 +5,11 @@ namespace Request
 {
     std::vector<std::string> split(std::string s, std::string delimiter)
     {
+        if (s.length() == 0)
+        {
+            return {};
+        }
+
         size_t pos_start = 0, pos_end, delim_len = delimiter.length();
         std::string token;
         std::vector<std::string> res;

@@ -20,10 +20,20 @@ namespace Controllers
     Views::View login()
     {
         cgicc::Cgicc cgi;
+
+        if (Session::userId(cgi).has_value())
+        {
+            return Views::Seed().setBody("bruv");
+        }
+
+        Logger::logInfo("Can be called?"); 
+            Logger::logInfo("Can be called1?"); 
         // Print out the submitted element
         cgicc::CgiEnvironment env = cgi.getEnvironment();
+            Logger::logInfo("Can be called2?"); 
         std::string requestBody = env.getPostData();
 
+        Logger::logInfo("Request body is the following: " + requestBody); 
         std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
 
         if (postData.count("username") == 0 || postData.count("password") == 0)

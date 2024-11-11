@@ -12,22 +12,60 @@
 
 namespace Session
 {
-    // Function to retrieve the user ID from the SESSION_TOKEN cookie
-    std::optional<int> userId()
+    bool isValidAuthToken(std::string token)
     {
-        cgicc::Cgicc cgi;
-        cgi.getEnvironment().getCookieList();
+        // Check if the token has the correct length
+        if (token.length() != SESSION_TOKEN_SIZE) {
+            return false;
+        }
+
+        // Get the first (SESSION_TOKEN_SIZE - 64) characters (randomHex part)
+        std::string randomHex = token.substr(0, SESSION_TOKEN_SIZE - 64);
+
+        // Calculate the HMAC for the randomHex part
+        std::string calculatedMacCode = Crypto::hmac(randomHex);
+
+        // Extract the MAC code from the token (last 64 characters)
+        std::string providedMacCode = token.substr(SESSION_TOKEN_SIZE - 64);
+
+        // Compare the calculated MAC code with the provided one
+        return (calculatedMacCode == providedMacCode);
+    }
+
+    // Function to retrieve the user ID from the SESSION_TOKEN cookie
+    std::optional<int> userId(const cgicc::Cgicc& cgi)
+    {
+        const std::vector<cgicc::HTTPCookie> cookiesList = cgi.getEnvironment().getCookieList();
         // check if there is token,
         // Search for the cookie variable "SESSION_TOKEN"
+        for (auto cookie : cookiesList)
+        {
+            if (cookie.getName() == "SESSION_TOKEN")
+            {
+                std::string token = cookie.getValue();
+                if (isValidAuthToken(token) == false)
+                {
+                    Logger::logInfo("Invalid session token, has been tampered");
+                    return std::nullopt;
+                }
+                return 1;
 
-        //
+                // Check if the 
+            }
+        }
+
+        return std::nullopt; // No Cookie found
     }
 
     // Function to create a session token for a given user ID
-    std::string createSessionToken(int userId)
+    std::optional<std::string> createSessionToken(int userId)
     {
         // Create a random token of length, use the SHA with a random input
+        
+        // Turn the SESSION_TOKEN_SIZE to the the byte length (which is smaller when converted to string again)
+        // Subtract 64 since that is the length of the MAC code.
         const std::size_t tokenLength = (int)((SESSION_TOKEN_SIZE - 64)/2);
+
         // Turning to hex will make the size double
         std::array<CryptoPP::byte, tokenLength> randomBytes;
 
@@ -65,7 +103,7 @@ namespace Session
         {
             std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
 
-            Logger::logCritical("Can execute query insert session_token");
+            Logger::logInfo("Can execute query insert session_token");
 
             // Session Token Created
             connection->close();
@@ -77,17 +115,19 @@ namespace Session
             output += e.what(); // Log any SQL exceptions that occur during execution
             Logger::logCritical(output);
             connection->close();
-            return {}; // Return empty on exception
+            return std::nullopt; // Return empty on exception
         }
 
         // Failed, should not reach here
-        return {};
+        return std::nullopt;
     }
 
     // Function to log in a user with username and password
     std::optional<std::string> login(std::string username, std::string password)
     {
         Logger::logInfo("Reached login() function");
+
+        // Check if the user is already logged in, if so, then, skip this.
 
         auto connection = Database::GetConnection(); // Get a database connection
 
@@ -111,21 +151,23 @@ namespace Session
             {
                 int userId = res->getInt("id"); // Get user ID from result set
 
-                Logger::logCritical("user id: " + userId);
+                Logger::logInfo("user id: " + userId);
 
                 // Create a session token for this user ID
-                std::string token = createSessionToken(userId);
+                std::optional<std::string> token = createSessionToken(userId);
+                if (token.has_value())
+                {
+                    Logger::logInfo("Created Cookie: " + token.value());
 
-                Logger::logInfo("Created Cookie: " + token);
-
-                connection->close();
-                // Login successful
-                return token;
+                    connection->close();
+                    // Login successful
+                    return token;
+                } 
             }
 
             Logger::logWarning("Cannot find the user and password given");
             connection->close();
-            return {}; // Login failed: no matching username/password found
+            return std::nullopt; // Login failed: no matching username/password found
         }
         catch (sql::SQLException &e)
         {
@@ -133,7 +175,7 @@ namespace Session
             output += e.what(); // Log any SQL exceptions that occur during execution
             Logger::logCritical(output);
             connection->close();
-            return {}; // Return false on exception
+            return std::nullopt; // Return false on exception
         }
     }
 }
