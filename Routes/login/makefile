@@ -5,12 +5,16 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 
 # Linker flags for libraries
-LDFLAGS = -lmariadbcpp -lcgicc
+LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
 SOURCES = 	login.cpp \
 			../../Views/sections/login/login.view.cpp \
-			../../Views/layout/app.view.cpp \
+			../../Views/views.cpp \
+			../../Logger/logger.cpp \
+			../../Helpers/Database/db_connection.cpp \
+			../../Helpers/Cryptography/crypto.cpp \
+			../../Helpers/Database/Users/users.cpp \
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

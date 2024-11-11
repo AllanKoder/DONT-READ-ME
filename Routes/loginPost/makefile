@@ -8,20 +8,21 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
-SOURCES = 	seed.cpp \
-			../../Logger/logger.cpp \
-			../../Controllers/Seeding/seed.cpp \
-			../../Helpers/Database/db_connection.cpp \
-			../../Helpers/Cryptography/crypto.cpp \
-			../../Helpers/Database/Users/users.cpp \
+SOURCES = 	loginPost.cpp \
 			../../Views/sections/seed/seed.view.cpp \
 			../../Views/views.cpp \
-			
+			../../Logger/logger.cpp \
+			../../Helpers/Database/db_connection.cpp \
+			../../Helpers/Cryptography/crypto.cpp \
+			../../Controllers/Login/login.cpp \
+			../../Helpers/Session/session.cpp \
+			../../Helpers/Database/Users/users.cpp \
+
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Executable name
-EXECUTABLE = seed.cgi
+EXECUTABLE = loginPost.cgi
 
 # Default target
 all: $(EXECUTABLE)

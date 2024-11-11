@@ -12,7 +12,7 @@ namespace Crypto
 {
     std::string hash(const std::string& data, const std::string& salt) {
         // Combine data and salt
-        std::string combined = data + salt;
+        std::string combined = HASH_KEY + data + salt;
 
         // Prepare for hashing
         CryptoPP::byte abDigest[CryptoPP::SHA256::DIGESTSIZE];

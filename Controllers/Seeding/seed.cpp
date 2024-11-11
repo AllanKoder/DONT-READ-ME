@@ -14,7 +14,7 @@ namespace Controllers
         {
             // Create a user
             auto user = Database::Requests::CreateUserRequest(
-                "John Lennon",
+                "user",
                 "john.lennon@apple.com",
                 "password",
                 "user");

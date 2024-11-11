@@ -6,7 +6,6 @@
 int main()
 {
     // Output content from the login.view.h file
-    Views::login();
-
-    return 0;
+    Views::Login().render();
+    return EXIT_SUCCESS;
 }
