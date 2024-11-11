@@ -14,7 +14,9 @@
 #define PERMISSIONS_LEVEL_LENGTH 20
 
 // Session
-#define SESSION_TOKEN_SIZE 150
+
+// Must be even number to convert to hex
+#define SESSION_TOKEN_SIZE 256
 #define TOKEN_EXPIRY_TIME 24*60*60
 
 

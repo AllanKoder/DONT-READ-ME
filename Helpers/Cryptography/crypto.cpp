@@ -30,7 +30,7 @@ namespace Crypto
         return hexDigest; // Return the hexadecimal representation of the digest
     }
 
-    std::array<unsigned char, 32> hmac(const std::string& data)
+    std::string hmac(const std::string& data)
     {
         // Create HMAC object
         CryptoPP::HMAC<CryptoPP::SHA256> hmac(
@@ -39,9 +39,15 @@ namespace Crypto
         );
 
         // Calculate HMAC
-        std::array<unsigned char, 32> mac;
-        hmac.CalculateDigest(mac.data(), reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
+        CryptoPP::byte abDigest[CryptoPP::HMAC<CryptoPP::SHA256>::DIGESTSIZE];
+        hmac.CalculateDigest(abDigest, reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
 
-        return mac;
+        // Encode the digest to a hex string
+        std::string hexDigest;
+        CryptoPP::HexEncoder encoder(new CryptoPP::StringSink(hexDigest));
+        encoder.Put(abDigest, sizeof(abDigest));
+        encoder.MessageEnd();
+
+        return hexDigest;
     }
 }

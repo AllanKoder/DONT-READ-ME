@@ -5,6 +5,10 @@
 #include "../Cryptography/crypto.h"
 #include "../Database/db_connection.h"
 #include <cgicc/Cgicc.h>
+#include <crypto++/rdrand.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/hex.h>
+#include <array>
 
 namespace Session
 {
@@ -16,26 +20,68 @@ namespace Session
         // check if there is token,
         // Search for the cookie variable "SESSION_TOKEN"
 
-        // 
+        //
     }
 
     // Function to create a session token for a given user ID
     std::string createSessionToken(int userId)
     {
-        // Create a random token of length
-        int tokenLength = SESSION_TOKEN_SIZE - 32;
-        // Use 
-        // Crypto::hmac(); 
-        // to create a MAC code
-        // which is of length 32
-        
-        // append it together, store it as the token value
-        // last accessed is the current timestamp
-        // user id is the parameter
+        // Create a random token of length, use the SHA with a random input
+        const std::size_t tokenLength = (int)((SESSION_TOKEN_SIZE - 64)/2);
+        // Turning to hex will make the size double
+        std::array<CryptoPP::byte, tokenLength> randomBytes;
 
+        // Use AutoSeededRandomPool for secure random number generation
+        CryptoPP::AutoSeededRandomPool rng;
+        rng.GenerateBlock(randomBytes.data(), randomBytes.size());
+
+        // Convert random bytes to hex string
+        std::string randomHex;
+        CryptoPP::HexEncoder hexEncoder(new CryptoPP::StringSink(randomHex));
+        hexEncoder.Put(randomBytes.data(), randomBytes.size());
+        hexEncoder.MessageEnd();
+
+        // Create the MAC code
+        std::string macCode = Crypto::hmac(randomHex);
+
+        Logger::logInfo("Generated randomHex:" + randomHex);
+        Logger::logInfo("Generated macCode:" + macCode);
+        std::string token = randomHex + macCode;
+        Logger::logInfo("token:" + token);
+
+        // Create the token in the database
+        auto connection = Database::GetConnection(); // Get a database connection
         
-        // return the token
-        return "TestToken";
+        std::shared_ptr<sql::PreparedStatement> pstmt(connection->prepareStatement(
+            "INSERT INTO session_tokens VALUES(?, CURRENT_TIMESTAMP(), ?)")
+        );
+
+        // last accessed is the current timestamp. NOW()
+        // user id is the parameter
+        pstmt->setString(1, token);
+        pstmt->setInt(2, userId);
+        
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+            Logger::logCritical("Can execute query insert session_token");
+
+            // Session Token Created
+            connection->close();
+            return token;
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot create session_token:";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return {}; // Return empty on exception
+        }
+
+        // Failed, should not reach here
+        return {};
     }
 
     // Function to log in a user with username and password
@@ -60,8 +106,6 @@ namespace Session
         try
         {
             std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-            
-            Logger::logCritical("Can execute query");
 
             if (res->next())
             {
@@ -76,9 +120,9 @@ namespace Session
 
                 connection->close();
                 // Login successful
-                return token; 
+                return token;
             }
-            
+
             Logger::logWarning("Cannot find the user and password given");
             connection->close();
             return {}; // Login failed: no matching username/password found
