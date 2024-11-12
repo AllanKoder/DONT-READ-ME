@@ -2,7 +2,7 @@
 
 namespace Views
 {
-    Redirect::Redirect(std::string url)
+    Redirect::Redirect(std::shared_ptr<cgicc::Cgicc> cgi, std::string url) : View(cgi)
     {
         setRedirect(url);
         setBody("<p>redirecting...</p>");

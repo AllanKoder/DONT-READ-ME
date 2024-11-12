@@ -3,20 +3,12 @@
 #include <cgicc/HTMLClasses.h>
 #include <cgicc/HTTPRedirectHeader.h>
 #include "../Logger/logger.h"
-#include <sstream>   
+#include <sstream>
+#include "components/header.comp.h"
 
 namespace Views
 {
-    View::View() : redirectUrl(""), body(""), headers("")
-    {
-        title = "No Title";
-        cookies.clear();
-
-        // Libraries
-        scripts = "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
-    }
-
-    View::View(const cgicc::Cgicc& cgi) : redirectUrl(""), body(""), headers("")
+    View::View(std::shared_ptr<cgicc::Cgicc> _cgi) : redirectUrl(""), body(""), headers(""), cgi(_cgi)
     {
         title = "No Title";
         cookies.clear();
@@ -57,26 +49,39 @@ namespace Views
     void View::render()
     {
         // Output HTTP headers
-        std::cout << getHeader() << std::endl;
+        std::cout << getHeader() << "\n";
         
         // Start HTML document
-        std::cout << cgicc::html().set("lang", "en") << std::endl;
-       
+        std::cout << "<html lang=\"en\" class=\"h-full\">\n";
+    
         // Start the <head>
-        std::cout << cgicc::head() << std::endl;
-        std::cout << cgicc::title(title) << std::endl;
-        std::cout << scripts << std::endl;
-        std::cout << cgicc::head() <<std::endl;
-        // End </head>
+        std::cout << "<head>\n";
+        std::cout << "<meta charset=\"UTF-8\">\n";
+        std::cout << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+        std::cout << "<title>" << title << "</title>\n";
+        std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
+        std::cout << scripts << "\n";
+        std::cout << "</head>\n";
         
         // Start the body
-        std::cout << cgicc::body() << std::endl;
-        // Print body
-        std::cout << body << std::endl;
+        std::cout << "<body class=\"h-full bg-white\">\n";
+        
+        std::cout << Views::Header(cgi);
+        
+        // Main content
+        std::cout << "<main>\n";
+        std::cout << "  <div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">\n";
+        std::cout << "    <div class=\"px-4 py-6 sm:px-0\">\n";
+        std::cout << "      <div class=\"border-0 rounded-lg h-96\">\n";
+        std::cout << body << "\n";
+        std::cout << "      </div>\n";
+        std::cout << "    </div>\n";
+        std::cout << "  </div>\n";
+        std::cout << "</main>\n";
         
         // End HTML document
-        std::cout << cgicc::body() << cgicc::html() << std::endl;
-
+        std::cout << "</body>\n";
+        std::cout << "</html>\n";
     }
 
     View& View::setRedirect(const std::string& url) {

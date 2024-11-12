@@ -20,28 +20,28 @@ namespace Controllers
 {
     Views::View loginPost()
     {
-        cgicc::Cgicc cgi;
+        auto cgi = std::make_shared<cgicc::Cgicc>();
 
         // User is already authenticated
         if (Session::userId(cgi).has_value())
         {
             Logger::logInfo("Login Post: User is already logged in");
             // Redirect to homepage
-            return Views::Redirect("/cgi-bin/blogs.cgi");
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi");
         }
 
         // Get the request body
-        cgicc::CgiEnvironment env = cgi.getEnvironment();
+        cgicc::CgiEnvironment env = cgi->getEnvironment();
         std::string requestBody = env.getPostData();
 
-        Logger::logInfo("Request body is the following: " + requestBody); 
+        Logger::logInfo("Got Request body. It is the following: " + requestBody); 
         std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
 
         // Check if the user has filled the parameters
         if (postData.count("username") == 0 || postData.count("password") == 0)
         {
             // Invalid parameters, notify
-            return Views::Redirect("/cgi-bin/login.cgi");
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi");
         }
 
         // Get the post data
@@ -54,26 +54,26 @@ namespace Controllers
         {
             // Direct to homepage with cookies
             std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly";
-            return Views::Redirect("/cgi-bin/blogs.cgi" ).setCookie(cookie);
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi" ).setCookie(cookie);
         }
         else
         {
             // Is invalid, go back to login with message
-            return Views::Redirect("/cgi-bin/login.cgi");
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi");
         }
     }
 
     Views::View loginPage()
     {
-        cgicc::Cgicc cgi;
+        auto cgi = std::make_shared<cgicc::Cgicc>();
 
         if (Session::userId(cgi).has_value())
         {
             Logger::logInfo("Login Page: User is already logged in");
             // Redirect to homepage
-            return Views::Redirect("/cgi-bin/blogs.cgi");
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi");
         }
 
-        return Views::Login();
+        return Views::Login(cgi);
     }
 }

@@ -4,11 +4,11 @@
 #include "../../config.h"
 #include "../Cryptography/crypto.h"
 #include "../Database/db_connection.h"
-#include <cgicc/Cgicc.h>
 #include <crypto++/rdrand.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/hex.h>
 #include <array>
+#include <memory>
 
 namespace Session
 {
@@ -84,9 +84,9 @@ namespace Session
     }
 
     // Function to retrieve the user ID from the SESSION_TOKEN cookie
-    std::optional<int> userId(const cgicc::Cgicc& cgi)
+    std::optional<int> userId(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        const std::vector<cgicc::HTTPCookie> cookiesList = cgi.getEnvironment().getCookieList();
+        const std::vector<cgicc::HTTPCookie> cookiesList = cgi->getEnvironment().getCookieList();
         // check if there is token,
         // Search for the cookie variable "SESSION_TOKEN"
         for (auto cookie : cookiesList)

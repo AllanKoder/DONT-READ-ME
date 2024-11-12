@@ -8,6 +8,8 @@
 
 namespace Controllers
 {
+    auto cgi = std::make_shared<cgicc::Cgicc>();
+
     Views::View seed()
     {
         try
@@ -29,6 +31,6 @@ namespace Controllers
             Logger::logWarning(e.what());
         }    
 
-        return Views::Seed();
+        return Views::Seed(cgi);
     }
 }

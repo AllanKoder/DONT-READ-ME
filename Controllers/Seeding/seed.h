@@ -1,5 +1,5 @@
-#ifndef SEED_H
-#define SEED_H
+#ifndef SEED_CONTROLLER_H
+#define SEED_CONTROLLER_H
 
 #include <memory>
 #include <mariadb/conncpp.hpp>

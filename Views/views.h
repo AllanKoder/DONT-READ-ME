@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <cgicc/HTTPCookie.h>
 #include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/Cgicc.h>
@@ -25,10 +26,9 @@ namespace Views
         std::string title;
         std::vector<std::string> cookies;
         std::string getHeader();
-
+        std::shared_ptr<cgicc::Cgicc> cgi;
     public:
-        View();
-        View(const cgicc::Cgicc& cgi);
+        View(std::shared_ptr<cgicc::Cgicc> cgi);
         void render();
         View& setHeader(std::string header);
         View& setRedirect(const std::string& url);

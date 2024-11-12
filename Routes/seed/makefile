@@ -11,9 +11,11 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 SOURCES = 	seed.cpp \
 			../../Logger/logger.cpp \
 			../../Controllers/Seeding/seed.cpp \
+			../../Views/components/header.comp.cpp \
 			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
 			../../Helpers/Database/Users/users.cpp \
+			../../Helpers/Session/session.cpp \
 			../../Views/sections/seed/seed.view.cpp \
 			../../Views/views.cpp \
 			

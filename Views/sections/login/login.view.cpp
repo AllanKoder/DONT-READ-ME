@@ -3,7 +3,7 @@
 
 namespace Views
 {
-    Login::Login()
+    Login::Login(std::shared_ptr<cgicc::Cgicc> cgi) : View(cgi)
     {
         std::string bodyOutput = "";
         bodyOutput += "<form action='/cgi-bin/loginPost.cgi' method='POST'>\n";

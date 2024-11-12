@@ -7,7 +7,7 @@ namespace Views
     class Redirect : public View
     {
     public:
-        Redirect(std::string url);
+        Redirect(std::shared_ptr<cgicc::Cgicc> cgi, std::string url);
     };
 }
 

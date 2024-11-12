@@ -10,6 +10,7 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 # Source files
 SOURCES = 	blogs.cpp \
 			../../Views/views.cpp \
+			../../Views/components/header.comp.cpp \
 			../../Views/sections/blogs/blogs.view.cpp \
 			../../Logger/logger.cpp \
 			../../Views/redirect.cpp \
