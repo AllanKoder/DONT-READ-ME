@@ -2,7 +2,7 @@
 #include <mariadb/conncpp.hpp>
 #include <string.h>
 #include "../../Logger/logger.h"
-#include "../../Views/sections/seed/seed.view.h"
+#include "../../Views/sections/login/login.view.h"
 #include "../../Views/components/redirect.h"
 #include "../../Helpers/Database/Users/users.h"
 #include "../../Helpers/Session/session.h"
@@ -18,13 +18,14 @@
 
 namespace Controllers
 {
-    Views::View login()
+    Views::View loginPost()
     {
         cgicc::Cgicc cgi;
 
         // User is already authenticated
         if (Session::userId(cgi).has_value())
         {
+            Logger::logInfo("Login Post: User is already logged in");
             // Redirect to homepage
             return Views::Redirect("/cgi-bin/blogs.cgi");
         }
@@ -60,5 +61,19 @@ namespace Controllers
             // Is invalid, go back to login with message
             return Views::Redirect("/cgi-bin/login.cgi");
         }
+    }
+
+    Views::View loginPage()
+    {
+        cgicc::Cgicc cgi;
+
+        if (Session::userId(cgi).has_value())
+        {
+            Logger::logInfo("Login Page: User is already logged in");
+            // Redirect to homepage
+            return Views::Redirect("/cgi-bin/blogs.cgi");
+        }
+
+        return Views::Login();
     }
 }

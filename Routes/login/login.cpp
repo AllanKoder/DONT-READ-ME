@@ -1,11 +1,9 @@
 #include <iostream>
-#include <cgicc/HTTPHTMLHeader.h>
-#include <cgicc/HTMLClasses.h>
-#include "../../Views/sections/login/login.view.h"
+#include "../../Controllers/Login/login.h"
 
 int main()
 {
     // Output content from the login.view.h file
-    Views::Login().render();
+    Controllers::loginPage().render();
     return EXIT_SUCCESS;
 }

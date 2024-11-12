@@ -8,7 +8,8 @@
 
 namespace Controllers
 {
-    Views::View login();
+    Views::View loginPost();
+    Views::View loginPage();
 }
 
 #endif

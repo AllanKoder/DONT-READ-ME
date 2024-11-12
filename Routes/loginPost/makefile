@@ -9,7 +9,7 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
 SOURCES = 	loginPost.cpp \
-			../../Views/sections/seed/seed.view.cpp \
+			../../Views/sections/login/login.view.cpp \
 			../../Views/views.cpp \
 			../../Logger/logger.cpp \
 			../../Views/components/redirect.cpp \
