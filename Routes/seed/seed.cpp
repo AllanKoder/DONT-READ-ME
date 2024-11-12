@@ -5,6 +5,8 @@
 
 int main()
 {
-    Controllers::seed().render();
+    auto cgi = std::make_shared<cgicc::Cgicc>();
+
+    Controllers::seed(cgi).render();
     return EXIT_SUCCESS;
 }

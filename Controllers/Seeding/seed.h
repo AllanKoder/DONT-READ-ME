@@ -8,7 +8,7 @@
 
 namespace Controllers
 {
-    Views::View seed();
+    Views::View seed(std::shared_ptr<cgicc::Cgicc> cgi);
 }
 
 #endif

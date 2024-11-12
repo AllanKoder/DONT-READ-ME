@@ -3,6 +3,7 @@
 
 int main()
 {
-    Controllers::loginPost().render();
+    auto cgi = std::make_shared<cgicc::Cgicc>();
+    Controllers::loginPost(cgi).render();
     return EXIT_SUCCESS;
 }

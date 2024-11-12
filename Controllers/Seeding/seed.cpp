@@ -8,9 +8,7 @@
 
 namespace Controllers
 {
-    auto cgi = std::make_shared<cgicc::Cgicc>();
-
-    Views::View seed()
+    Views::View seed(std::shared_ptr<cgicc::Cgicc> cgi)
     {
         try
         {

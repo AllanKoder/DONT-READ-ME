@@ -18,10 +18,8 @@
 
 namespace Controllers
 {
-    Views::View loginPost()
+    Views::View loginPost(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        auto cgi = std::make_shared<cgicc::Cgicc>();
-
         // User is already authenticated
         if (Session::userId(cgi).has_value())
         {
@@ -63,10 +61,8 @@ namespace Controllers
         }
     }
 
-    Views::View loginPage()
+    Views::View loginPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        auto cgi = std::make_shared<cgicc::Cgicc>();
-
         if (Session::userId(cgi).has_value())
         {
             Logger::logInfo("Login Page: User is already logged in");
