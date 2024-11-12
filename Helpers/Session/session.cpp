@@ -44,15 +44,15 @@ namespace Session
         // Check if the token is in the database
         auto connection = Database::GetConnection(); // Get a database connection
         
-        std::shared_ptr<sql::PreparedStatement> pstmt(connection->prepareStatement(
+        std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
             "SELECT TIMESTAMPDIFF(SECOND, last_accessed, CURRENT_TIMESTAMP()) as time_difference, user_id FROM session_tokens WHERE value = ?")
         );
 
-        pstmt->setString(1, token);
+        selectStatement->setString(1, token);
 
         try
         {
-            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+            std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
 
             if (res->next())
             {
@@ -112,6 +112,31 @@ namespace Session
     // Function to create a session token for a given user ID
     std::optional<std::string> createSessionToken(int userId)
     {
+        // Delete all existing tokens with the user
+        auto connection = Database::GetConnection(); // Get a database connection
+
+        // Search for existing session token for this user
+        std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(
+            "DELETE FROM session_tokens WHERE user_id = ?"
+            )
+        );
+
+        deleteStatement->setInt(1, userId);
+
+        try
+        {
+            // Deleted
+            deleteStatement->executeQuery();
+        }
+        catch(const sql::SQLException& e)
+        {
+            std::string output = "Could not delete existing tokens ";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return std::nullopt; // Return false on exception
+        }
+        
         // Create a random token of length, use the SHA with a random input
         
         // Turn the SESSION_TOKEN_SIZE to the the byte length (which is smaller when converted to string again)
@@ -138,22 +163,20 @@ namespace Session
         Logger::logInfo("Generated macCode:" + macCode);
         std::string token = randomHex + macCode;
         Logger::logInfo("token:" + token);
-
-        // Create the token in the database
-        auto connection = Database::GetConnection(); // Get a database connection
         
-        std::shared_ptr<sql::PreparedStatement> pstmt(connection->prepareStatement(
+        // Create the token in the database
+        std::shared_ptr<sql::PreparedStatement> insertStatement(connection->prepareStatement(
             "INSERT INTO session_tokens VALUES(?, CURRENT_TIMESTAMP(), ?)")
         );
 
         // last accessed is the current timestamp. NOW()
         // user id is the parameter
-        pstmt->setString(1, token);
-        pstmt->setInt(2, userId);
+        insertStatement->setString(1, token);
+        insertStatement->setInt(2, userId);
         
         try
         {
-            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+            std::unique_ptr<sql::ResultSet> res(insertStatement->executeQuery());
 
             Logger::logInfo("Can execute query insert session_token");
 
@@ -175,7 +198,7 @@ namespace Session
     }
 
     // Function to log in a user with username and password
-    // Should only call login if the user is not authenticated, as it will get rid of their old seesion_token
+    // will get rid of their old session_token
     std::optional<std::string> login(std::string username, std::string password)
     {
         Logger::logInfo("Reached login() function");
@@ -188,24 +211,24 @@ namespace Session
         std::string hashedPassword = Crypto::hash(password, username);
 
         // Prepare an SQL statement to check if username and password hash match
-        std::shared_ptr<sql::PreparedStatement> pstmt(connection->prepareStatement(
+        std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
             "SELECT id FROM users WHERE username = ? AND password_hash = ?"));
 
-        pstmt->setString(1, username);
-        pstmt->setString(2, hashedPassword);
+        selectStatement->setString(1, username);
+        selectStatement->setString(2, hashedPassword);
 
         Logger::logInfo("username: " + username + " hashed password: " + hashedPassword);
 
         try
         {
-            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+            std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
 
+            // Is a valid username and password
             if (res->next())
             {
                 int userId = res->getInt("id"); // Get user ID from result set
 
                 Logger::logInfo("user id: " + userId);
-
                 // Create a session token for this user ID
                 std::optional<std::string> token = createSessionToken(userId);
                 if (token.has_value())
