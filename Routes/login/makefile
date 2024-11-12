@@ -12,7 +12,7 @@ SOURCES = 	login.cpp \
 			../../Views/sections/login/login.view.cpp \
 			../../Views/views.cpp \
 			../../Logger/logger.cpp \
-			../../Views/components/redirect.cpp \
+			../../Views/redirect.cpp \
 			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
 			../../Controllers/Login/login.cpp \

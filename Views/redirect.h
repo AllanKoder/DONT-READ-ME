@@ -1,6 +1,6 @@
 #ifndef REDIRECT_VIEW_H
 #define REDIRECT_VIEW_H
-#include "../views.h"
+#include "views.h"
 
 namespace Views
 {

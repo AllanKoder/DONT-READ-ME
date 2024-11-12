@@ -1,5 +1,5 @@
-#ifndef LOGIN_CONTROLLER_H
-#define LOGIN_CONTROLLER_H
+#ifndef BLOG_CONTROLLER_H
+#define BLOG_CONTROLLER_H
 
 #include <memory>
 #include <mariadb/conncpp.hpp>
@@ -7,8 +7,7 @@
 
 namespace Controllers
 {
-    Views::View loginPost();
-    Views::View loginPage();
+    Views::View blogsPage();
 }
 
 #endif

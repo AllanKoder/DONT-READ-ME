@@ -11,6 +11,18 @@ namespace Views
     {
         title = "No Title";
         cookies.clear();
+
+        // Libraries
+        scripts = "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
+    }
+
+    View::View(const cgicc::Cgicc& cgi) : redirectUrl(""), body(""), headers("")
+    {
+        title = "No Title";
+        cookies.clear();
+
+        // Libraries
+        scripts = "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
     }
 
     std::string View::getHeader()
@@ -53,13 +65,14 @@ namespace Views
         // Start the <head>
         std::cout << cgicc::head() << std::endl;
         std::cout << cgicc::title(title) << std::endl;
+        std::cout << scripts << std::endl;
         std::cout << cgicc::head() <<std::endl;
         // End </head>
         
         // Start the body
         std::cout << cgicc::body() << std::endl;
         // Print body
-        std::cout << body;
+        std::cout << body << std::endl;
         
         // End HTML document
         std::cout << cgicc::body() << cgicc::html() << std::endl;
@@ -92,6 +105,12 @@ namespace Views
     View& View::setTitle(std::string newTitle)
     {
         title = newTitle;
+        return *this;
+    }
+    
+    View& View::setNotification(NotificationType type, std::string message)
+    {
+
         return *this;
     }
 }

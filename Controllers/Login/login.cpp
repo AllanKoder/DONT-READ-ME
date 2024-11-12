@@ -3,7 +3,7 @@
 #include <string.h>
 #include "../../Logger/logger.h"
 #include "../../Views/sections/login/login.view.h"
-#include "../../Views/components/redirect.h"
+#include "../../Views/redirect.h"
 #include "../../Helpers/Database/Users/users.h"
 #include "../../Helpers/Session/session.h"
 #include "../../Helpers/Request/request.h"

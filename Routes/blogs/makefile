@@ -12,7 +12,7 @@ SOURCES = 	blogs.cpp \
 			../../Views/views.cpp \
 			../../Views/sections/blogs/blogs.view.cpp \
 			../../Logger/logger.cpp \
-			../../Views/components/redirect.cpp \
+			../../Views/redirect.cpp \
 			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
 			../../Helpers/Session/session.cpp \
