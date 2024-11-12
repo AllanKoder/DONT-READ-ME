@@ -7,7 +7,7 @@ namespace Views
     class Redirect : public View
     {
     public:
-        Redirect();
+        Redirect(std::string url);
     };
 }
 

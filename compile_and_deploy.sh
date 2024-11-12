@@ -28,6 +28,7 @@ find "$BASE_DIR" -name "*.cpp" | while read -r cpp_file; do
         if [[ -f "$base_name.cgi" ]]; then
             mv "$base_name.cgi" "$CGI_BIN/"
             echo "Successfully compiled and deployed: $base_name.cgi"
+            echo ""
         else
             echo "Compiled file not found: $base_name.cgi"
         fi

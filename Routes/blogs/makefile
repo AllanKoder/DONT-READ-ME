@@ -8,23 +8,23 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
-SOURCES = 	loginPost.cpp \
-			../../Views/sections/seed/seed.view.cpp \
+SOURCES = 	blogs.cpp \
 			../../Views/views.cpp \
+			../../Views/sections/blogs/blogs.view.cpp \
 			../../Logger/logger.cpp \
 			../../Views/components/redirect.cpp \
 			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
-			../../Controllers/Login/login.cpp \
 			../../Helpers/Session/session.cpp \
 			../../Helpers/Request/requests.cpp \
 			../../Helpers/Database/Users/users.cpp \
+
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Executable name
-EXECUTABLE = loginPost.cgi
+EXECUTABLE = blogs.cgi
 
 # Default target
 all: $(EXECUTABLE)
