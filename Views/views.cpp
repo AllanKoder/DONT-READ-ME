@@ -37,7 +37,7 @@ namespace Views
         outputHeader << headers;
 
         // Add cookies
-        for (const auto& cookie : cookies)
+        for (const auto &cookie : cookies)
         {
             outputHeader << "Set-Cookie: " << cookie << "\n";
         }
@@ -50,10 +50,10 @@ namespace Views
     {
         // Output HTTP headers
         std::cout << getHeader() << "\n";
-        
+
         // Start HTML document
         std::cout << "<html lang=\"en\" class=\"h-full\">\n";
-    
+
         // Start the <head>
         std::cout << "<head>\n";
         std::cout << "<meta charset=\"UTF-8\">\n";
@@ -62,58 +62,62 @@ namespace Views
         std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
         std::cout << scripts << "\n";
         std::cout << "</head>\n";
-        
+
         // Start the body
         std::cout << "<body class=\"h-full bg-white\">\n";
-        
+
         std::cout << Views::Header(cgi);
-        
+
         // Main content
-        std::cout << "<main>\n";
+        std::cout << "<main class=\"flex items-center justify-center h-5/6\">\n"; // Full height for main
         std::cout << "  <div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">\n";
         std::cout << "    <div class=\"px-4 py-6 sm:px-0\">\n";
-        std::cout << "      <div class=\"border-0 rounded-lg h-96\">\n";
-        std::cout << body << "\n";
+
+        // Updated card styling
+        std::cout << "      <div class=\"border rounded-lg min-h-[200px] min-w-[300px] p-6 shadow-lg bg-white flex items-center justify-center\">\n";
+        std::cout << body << "\n"; // Body content
         std::cout << "      </div>\n";
+
         std::cout << "    </div>\n";
         std::cout << "  </div>\n";
         std::cout << "</main>\n";
-        
+
         // End HTML document
         std::cout << "</body>\n";
         std::cout << "</html>\n";
     }
 
-    View& View::setRedirect(const std::string& url) {
+    View &View::setRedirect(const std::string &url)
+    {
         redirectUrl = url;
         return *this;
     }
-    
-    View& View::setHeader(std::string header)
+
+    View &View::setHeader(std::string header)
     {
         headers += header + "\r\n";
         return *this;
     }
 
-    View& View::setCookie(std::string cookie)
+    View &View::setCookie(std::string cookie)
     {
         cookies.push_back(cookie);
         return *this;
     }
 
-    View& View::setBody(std::string newBody)
+    View &View::setBody(std::string newBody)
     {
         body = newBody;
         return *this;
     }
 
-    View& View::setTitle(std::string newTitle)
+    View &View::setTitle(std::string newTitle)
     {
         title = newTitle;
         return *this;
     }
-    
-    View& View::setNotification(NotificationType type, std::string message)
+
+    View &View::setNotification(NotificationType type, std::string message)
     {
 
         return *this;
