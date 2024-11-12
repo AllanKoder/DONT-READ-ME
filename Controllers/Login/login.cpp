@@ -39,9 +39,11 @@ namespace Controllers
         // Check if the user has filled the parameters
         if (postData.count("username") == 0 || postData.count("password") == 0)
         {
-            return Views::Seed().setTitle("Failed Data");
+            // Invalid parameters, notify
+            return Views::Redirect("/cgi-bin/login.cgi");
         }
 
+        // Get the post data
         std::string username = postData.at("username");
         std::string password = postData.at("password");
 

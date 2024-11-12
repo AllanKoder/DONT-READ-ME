@@ -15,27 +15,31 @@ namespace Views
 
     std::string View::getHeader()
     {
-        // If there's no redirect, proceed with the normal header
-        std::string outputHeader = "Content-Type: text/html\n";
+        std::ostringstream outputHeader;
+
         if (!redirectUrl.empty())
         {
             // There is a redirect, set it as the header
-            cgicc::HTTPRedirectHeader redirectHeader(redirectUrl, 307);
-            std::ostringstream oss;
-            oss << redirectHeader;
-            
-            outputHeader = oss.str();
+            outputHeader << "Status: 301 Moved Permanently\n";
+            outputHeader << "Location: " << redirectUrl << "\n";
         }
-        
-        outputHeader += headers;
+        else
+        {
+            // If there's no redirect, proceed with the normal header
+            outputHeader << "Content-Type: text/html\n";
+        }
 
+        // Add custom headers
+        outputHeader << headers;
+
+        // Add cookies
         for (const auto& cookie : cookies)
         {
-            outputHeader += "Set-Cookie: " + cookie + "\n";
+            outputHeader << "Set-Cookie: " << cookie << "\n";
         }
-        
-        outputHeader += "\n\n";
-        return outputHeader;
+
+        outputHeader << "\n";
+        return outputHeader.str();
     }
 
     void View::render()
