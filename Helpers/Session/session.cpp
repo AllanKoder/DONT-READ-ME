@@ -12,11 +12,17 @@
 
 namespace Session
 {
-    bool isValidAuthToken(std::string token)
+    std::optional<int> isValidAuthToken(std::string token)
     {
+        // 1. Check the token is not modified
+        // 2. Check if the token is in the database
+        // 3. Check if the token is expired
+
+        Logger::logInfo("checking valid token on: " + token);
+
         // Check if the token has the correct length
         if (token.length() != SESSION_TOKEN_SIZE) {
-            return false;
+            return std::nullopt;
         }
 
         // Get the first (SESSION_TOKEN_SIZE - 64) characters (randomHex part)
@@ -29,7 +35,52 @@ namespace Session
         std::string providedMacCode = token.substr(SESSION_TOKEN_SIZE - 64);
 
         // Compare the calculated MAC code with the provided one
-        return (calculatedMacCode == providedMacCode);
+        if (calculatedMacCode != providedMacCode)
+        {
+            Logger::logWarning("Session token has been tampered with");
+            return std::nullopt;
+        }
+
+        // Check if the token is in the database
+        auto connection = Database::GetConnection(); // Get a database connection
+        
+        std::shared_ptr<sql::PreparedStatement> pstmt(connection->prepareStatement(
+            "SELECT TIMESTAMPDIFF(SECOND, last_accessed, CURRENT_TIMESTAMP()) as time_difference, user_id FROM session_tokens WHERE value = ?")
+        );
+
+        pstmt->setString(1, token);
+
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+            if (res->next())
+            {
+                int timeDiff = res->getInt("time_difference");
+
+                if (timeDiff >= TOKEN_EXPIRY_TIME)
+                {
+                    // Has expired
+                    Logger::logInfo("The token has expired. The timeDiff was " + std::to_string(timeDiff) + " with an expected timeDiff of at most " + std::to_string(TOKEN_EXPIRY_TIME));
+                    return std::nullopt;
+                }
+                int userId = res->getInt("user_id"); // Get user ID from result set
+                Logger::logInfo("Got the user_id: " + std::to_string(userId));
+                connection->close();
+                return userId;
+            }
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot fetch the user Token";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return std::nullopt; // Return false on exception
+        }
+
+        connection->close();
+        return std::nullopt;
     }
 
     // Function to retrieve the user ID from the SESSION_TOKEN cookie
@@ -43,14 +94,15 @@ namespace Session
             if (cookie.getName() == "SESSION_TOKEN")
             {
                 std::string token = cookie.getValue();
-                if (isValidAuthToken(token) == false)
+                std::optional<int> userId = isValidAuthToken(token);
+                if (!userId.has_value())
                 {
-                    Logger::logInfo("Invalid session token, has been tampered");
+                    Logger::logInfo("Invalid session token");
                     return std::nullopt;
                 }
-                return 1;
-
-                // Check if the 
+                
+                // The session_token is in the database
+                return userId.value();
             }
         }
 
@@ -123,6 +175,7 @@ namespace Session
     }
 
     // Function to log in a user with username and password
+    // Should only call login if the user is not authenticated, as it will get rid of their old seesion_token
     std::optional<std::string> login(std::string username, std::string password)
     {
         Logger::logInfo("Reached login() function");

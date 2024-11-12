@@ -17,6 +17,8 @@
 
 // Must be even number to convert to hex
 #define SESSION_TOKEN_SIZE 256
+
+// Seconds for use, is a day long, 24 hours * 60 minutes * 60 seconds
 #define TOKEN_EXPIRY_TIME 24*60*60
 
 

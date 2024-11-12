@@ -21,16 +21,13 @@ namespace Controllers
     {
         cgicc::Cgicc cgi;
 
-        if (Session::userId(cgi).has_value())
+        if (!Session::userId(cgi).has_value())
         {
-            return Views::Seed().setBody("bruv");
+            return Views::Seed().setBody("not valid bruv");
         }
 
-        Logger::logInfo("Can be called?"); 
-            Logger::logInfo("Can be called1?"); 
         // Print out the submitted element
         cgicc::CgiEnvironment env = cgi.getEnvironment();
-            Logger::logInfo("Can be called2?"); 
         std::string requestBody = env.getPostData();
 
         Logger::logInfo("Request body is the following: " + requestBody); 
@@ -49,11 +46,11 @@ namespace Controllers
         if (token.has_value())
         {
             std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly";
-            return Views::Seed().setTitle("Foo").setCookie(cookie);
+            return Views::Seed().setBody("Foo").setCookie(cookie);
         }
         else
         {
-            return Views::Seed().setTitle("Poo");
+            return Views::Seed().setBody("Poo");
         }
     }
 }
