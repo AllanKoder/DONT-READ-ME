@@ -29,8 +29,7 @@ namespace StringHelpers
 
     std::string urlDecode(const std::string& src) {
         std::string dest;
-        char ch;
-        int i;
+        size_t i;
         for (i = 0; i < src.length(); i++) {
             if (src[i] == '%') {
                 std::istringstream iss(src.substr(i + 1, 2));

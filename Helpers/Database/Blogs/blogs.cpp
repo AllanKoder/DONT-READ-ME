@@ -15,7 +15,7 @@ namespace Database
         // Prepare the SELECT statement
         std::unique_ptr<sql::PreparedStatement> statement(
             connection->prepareStatement(
-                "SELECT u.username, b.created_on, b.title "
+                "SELECT u.username, b.upvotes, b.created_on, b.title "
                 "FROM blogs b "
                 "JOIN users u ON b.user_id = u.id "
                 "WHERE u.username LIKE ? OR b.title LIKE ?"
@@ -36,7 +36,8 @@ namespace Database
         // Process the results
         while (resultSet->next()) {
             Requests::BlogPost post;
-            post.name = resultSet->getString("username");
+            post.username = resultSet->getString("username");
+            post.upvotes = resultSet->getInt("upvotes");
             post.dateCreated = resultSet->getString("created_on");
             post.title = resultSet->getString("title");
             posts.push_back(post);

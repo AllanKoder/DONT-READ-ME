@@ -7,7 +7,8 @@
 namespace Database::Requests
 {
     struct BlogPost {
-        std::string name;
+        std::string username;
+        int upvotes;
         std::string dateCreated;
         std::string title;
     };

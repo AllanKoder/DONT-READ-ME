@@ -1,14 +1,22 @@
 #include "blog.h"
 #include "../../Views/sections/blogs/blogs.view.h"
+#include "../../Views/redirect.h"
 #include "../../Helpers/Database/Blogs/blogs.h"
 #include "../../Helpers/Request/request.h"
 #include "../../Logger/logger.h"
+#include "../../Helpers/Session/session.h"
 #include <vector>
 
 namespace Controllers
 {
     Views::View blogsPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        std::optional<int> userId = Session::userId(cgi);
+        if (userId.has_value() == false)
+        {
+            // Need to be logged in
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
+        }
         try {
             std::string queryStrings = cgi->getEnvironment().getQueryString();
             std::string searchString = Request::getQueryValue("search", queryStrings);
