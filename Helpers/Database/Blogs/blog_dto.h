@@ -6,12 +6,20 @@
 
 namespace Database::Requests
 {
-    struct BlogPost {
+    struct BlogModel
+    {
         std::string username;
         std::string content;
         int upvotes;
         std::string dateCreated;
         std::string title;
+    };
+
+    struct BlogPost
+    {
+        std::string title;
+        std::string content;
+        int userId;
     };
 }
 

@@ -2,15 +2,16 @@
 #include <memory>
 #include <mariadb/conncpp.hpp>
 #include "../db_connection.h"
+#include "blog_dto.h"
 
 namespace Database
 {
-    std::vector<Requests::BlogPost> viewBlogs(const std::string& query)
+    std::vector<Requests::BlogModel> viewBlogs(const std::string& query)
     {
         auto connection = Database::GetConnection();
         
         // The list of blog posts
-        std::vector<Requests::BlogPost> posts;
+        std::vector<Requests::BlogModel> posts;
 
         // Prepare the SELECT statement
         std::unique_ptr<sql::PreparedStatement> statement(
@@ -35,7 +36,7 @@ namespace Database
 
         // Process the results
         while (resultSet->next()) {
-            Requests::BlogPost post;
+            Requests::BlogModel post;
             post.username = resultSet->getString("username");
             post.upvotes = resultSet->getInt("upvotes");
             post.dateCreated = resultSet->getString("created_on");
@@ -45,5 +46,24 @@ namespace Database
 
         connection->close(); 
         return posts; 
+    }
+
+    void createBlog(const Requests::BlogPost& post) {
+        auto connection = Database::GetConnection();
+
+        // Prepare the INSERT statement
+        std::unique_ptr<sql::PreparedStatement> insertStatement(
+            connection->prepareStatement(
+                "INSERT INTO blogs (title, content, user_id) VALUES (?, ?, ?)"
+            )
+        );
+
+        insertStatement->setString(1, post.title);
+        insertStatement->setString(2, post.content);
+        insertStatement->setInt(3, post.userId);
+
+        insertStatement->executeUpdate(); // Execute the insertion
+
+        connection->close(); 
     }
 }

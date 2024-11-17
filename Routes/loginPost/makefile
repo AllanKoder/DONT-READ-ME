@@ -21,6 +21,7 @@ SOURCES = 	loginPost.cpp \
 			../../Helpers/Request/requests.cpp \
 			../../Helpers/String/string_helpers.cpp \
 			../../Helpers/Database/Users/users.cpp \
+			
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

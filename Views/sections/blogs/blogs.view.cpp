@@ -4,7 +4,7 @@
 
 namespace Views
 {
-    Blogs::Blogs(std::shared_ptr<cgicc::Cgicc> cgi, std::vector<Database::Requests::BlogPost> posts) : View(cgi)
+    Blogs::Blogs(std::shared_ptr<cgicc::Cgicc> cgi, std::vector<Database::Requests::BlogModel> posts) : View(cgi)
     {
         setTitle("Blogs");
 

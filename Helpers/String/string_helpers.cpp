@@ -46,4 +46,32 @@ namespace StringHelpers
         }
         return dest;
     }
+
+    std::string htmlSpecialChars(const std::string& src) {
+        std::string result;
+
+        for (char c : src) {
+            switch (c) {
+                case '&':
+                    result += "&amp;"; // Ampersand
+                    break;
+                case '\"':
+                    result += "&quot;"; // Double quote
+                    break;
+                case '\'':
+                    result += "&#039;"; // Single quote
+                    break;
+                case '<':
+                    result += "&lt;"; // Less than
+                    break;
+                case '>':
+                    result += "&gt;"; // Greater than
+                    break;
+                default:
+                    result += c; // Append the character as is
+            }
+        }
+        
+        return result;
+    }
 }
