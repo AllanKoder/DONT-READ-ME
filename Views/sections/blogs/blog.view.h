@@ -1,5 +1,5 @@
-#ifndef BLOGS_VIEW_H
-#define BLOGS_VIEW_H
+#ifndef BLOG_VIEW_H
+#define BLOG_VIEW_H
 
 #include "../../views.h"
 #include <vector>
@@ -8,10 +8,10 @@
 
 namespace Views
 {
-    class Blogs : public View
+    class Blog : public View
     {
     public:
-        Blogs(std::shared_ptr<cgicc::Cgicc> cgi, std::vector<Database::Requests::BlogModel> posts);
+        Blog(std::shared_ptr<cgicc::Cgicc> cgi, Database::Requests::BlogModel post);
     };
 }
 

@@ -264,7 +264,7 @@ namespace Session
         std::optional<std::string> token = getSessionToken(cgi);
         if (!token.has_value())
         {
-            return "This is invalid!!!! You should be logged in";
+            return "This is invalid!!!! You should be logged in. This code will never be reached";
         }
  
         return Crypto::hash(token.value(), CRSF_KEY);

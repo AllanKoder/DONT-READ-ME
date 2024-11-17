@@ -1,5 +1,6 @@
 #include "blog.h"
 #include "../../Views/sections/blogs/blogs.view.h"
+#include "../../Views/sections/blogs/blog.view.h"
 #include "../../Views/sections/blogs/create_blog.view.h"
 #include "../../Views/redirect.h"
 #include "../../Helpers/Database/Blogs/blogs.h"
@@ -9,6 +10,7 @@
 #include "../../Helpers/Session/session.h"
 #include "../../Helpers/String/string_helpers.h"
 #include <vector>
+#include <string>
 
 namespace Controllers
 {
@@ -33,6 +35,45 @@ namespace Controllers
             Logger::logCritical("Cannot load blogs " + std::string(e.what()));
             return Views::Blogs(cgi, {}).setNotification(Views::NotificationType::WARNING, "Cannot load blogs :(");
         }
+    }
+
+    Views::View blogPage(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
+        {
+            // Need to be logged in
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
+        }
+
+        std::string path = cgi->getEnvironment().getPathInfo();
+        std::optional<int> blogNumber = Request::getPathNumber(path);
+        if (!blogNumber.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Invalid blog path parameter integer");
+        }
+
+        try
+        {
+            std::optional<Database::Requests::BlogModel> blog = Database::viewBlog(blogNumber.value());
+            if (!blog.has_value())
+            {
+                Logger::logWarning("Blog not found " + std::to_string(blogNumber.value()));
+
+                return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                    .setNotification(Views::NotificationType::WARNING, "Blog not found");
+            }
+
+            return Views::Blog(cgi, blog.value());
+        }
+        catch (sql::SQLException &e)
+        {
+            Logger::logCritical("Cannot load blog " + std::string(e.what()));
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Cannot load the blog specified");
+        } 
     }
 
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)

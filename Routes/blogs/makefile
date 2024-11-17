@@ -12,6 +12,7 @@ SOURCES = 	blogs.cpp \
 			../../Views/views.cpp \
 			../../Views/components/header.comp.cpp \
 			../../Views/sections/blogs/blogs.view.cpp \
+			../../Views/sections/blogs/blog.view.cpp \
 			../../Views/sections/blogs/create_blog.view.cpp \
 			../../Controllers/Blog/blog.cpp \
 			../../Logger/logger.cpp \

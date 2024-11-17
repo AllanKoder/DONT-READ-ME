@@ -7,6 +7,7 @@
 namespace Controllers
 {
     Views::View blogsPage(std::shared_ptr<cgicc::Cgicc> cgi);
+    Views::View blogPage(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View postBlogPage(std::shared_ptr<cgicc::Cgicc> cgi);
 }

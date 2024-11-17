@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 
 # Source files
-SOURCES =  createBlog.cpp \
+SOURCES =  blog.cpp \
             ../../Views/views.cpp \
             ../../Views/components/header.comp.cpp \
             ../../Views/sections/blogs/blogs.view.cpp \
@@ -33,7 +33,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Executable name
-EXECUTABLE = createBlog.cgi
+EXECUTABLE = blog.cgi
 
 # Default target
 all: $(EXECUTABLE)

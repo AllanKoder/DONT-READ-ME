@@ -51,6 +51,44 @@ namespace Database
         return posts; 
     }
 
+    std::optional<Requests::BlogModel> viewBlog(int id) {
+        auto connection = Database::GetConnection();
+        
+        // Prepare the SELECT statement
+        std::unique_ptr<sql::PreparedStatement> statement(
+            connection->prepareStatement(
+                "SELECT u.username, b.upvotes, b.created_on, b.title, b.content "
+                "FROM blogs b "
+                "JOIN users u ON b.user_id = u.id "
+                "WHERE b.id = ?"
+            )
+        );
+
+        // Set the ID parameter
+        statement->setInt(1, id);
+
+        // Execute the query
+        std::unique_ptr<sql::ResultSet> resultSet(statement->executeQuery());
+
+        // Check if a result is returned
+        if (resultSet->next()) {
+            // Create the BlogModel object from the result set
+            Requests::BlogModel post(
+                resultSet->getString("username").c_str(), 
+                resultSet->getString("content").c_str(),
+                resultSet->getInt("upvotes"),
+                resultSet->getString("created_on").c_str(),
+                resultSet->getString("title").c_str()
+            );
+
+            connection->close(); 
+            return post; // Return the found blog post
+        }
+
+        connection->close(); 
+        return std::nullopt; // Return nullopt if no blog post was found
+    }
+
     void createBlog(const Requests::BlogPost& post) {
         auto connection = Database::GetConnection();
 

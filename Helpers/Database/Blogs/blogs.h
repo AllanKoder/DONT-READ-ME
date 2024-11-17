@@ -5,11 +5,13 @@
 #include <mariadb/conncpp.hpp>
 #include "blog_dto.h"
 #include <vector>
+#include <optional>
 
 namespace Database
 {
-    std::vector<Requests::BlogModel> viewBlogs(const std::string& query);
-    void createBlog(const Requests::BlogPost& post);
+    std::vector<Requests::BlogModel> viewBlogs(const std::string &query);
+    std::optional<Requests::BlogModel> viewBlog(int id);
+    void createBlog(const Requests::BlogPost &post);
 }
 
 #endif
