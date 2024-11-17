@@ -25,22 +25,6 @@ namespace Session
             return std::nullopt;
         }
 
-        // Get the first (SESSION_TOKEN_SIZE - 64) characters (randomHex part)
-        std::string randomHex = token.substr(0, SESSION_TOKEN_SIZE - 64);
-
-        // Calculate the HMAC for the randomHex part
-        std::string calculatedMacCode = Crypto::hmac(randomHex);
-
-        // Extract the MAC code from the token (last 64 characters)
-        std::string providedMacCode = token.substr(SESSION_TOKEN_SIZE - 64);
-
-        // Compare the calculated MAC code with the provided one
-        if (calculatedMacCode != providedMacCode)
-        {
-            Logger::logWarning("Session token has been tampered with");
-            return std::nullopt;
-        }
-
         // Check if the token is in the database
         auto connection = Database::GetConnection(); // Get a database connection
         
@@ -147,11 +131,8 @@ namespace Session
             return std::nullopt;
         }
 
-        // Create a random token of length, use the SHA with a random input
-        
         // Turn the SESSION_TOKEN_SIZE to the the byte length (which is smaller when converted to string again)
-        // Subtract 64 since that is the length of the MAC code.
-        const std::size_t tokenLength = (int)((SESSION_TOKEN_SIZE - 64)/2);
+        const std::size_t tokenLength = (int)((SESSION_TOKEN_SIZE)/2);
 
         // Turning to hex will make the size double
         std::array<CryptoPP::byte, tokenLength> randomBytes;
@@ -161,19 +142,11 @@ namespace Session
         rng.GenerateBlock(randomBytes.data(), randomBytes.size());
 
         // Convert random bytes to hex string
-        std::string randomHex;
-        CryptoPP::HexEncoder hexEncoder(new CryptoPP::StringSink(randomHex));
+        std::string token;
+        CryptoPP::HexEncoder hexEncoder(new CryptoPP::StringSink(token));
         hexEncoder.Put(randomBytes.data(), randomBytes.size());
         hexEncoder.MessageEnd();
 
-        // Create the MAC code
-        std::string macCode = Crypto::hmac(randomHex);
-
-        Logger::logInfo("Generated randomHex:" + randomHex);
-        Logger::logInfo("Generated macCode:" + macCode);
-        std::string token = randomHex + macCode;
-        Logger::logInfo("token:" + token);
-        
         auto connection = Database::GetConnection(); // Get a database connection
         // Create the token in the database
         std::shared_ptr<sql::PreparedStatement> insertStatement(connection->prepareStatement(
