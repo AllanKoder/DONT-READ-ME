@@ -12,14 +12,15 @@ namespace Views
         // Search bar
         bodyOutput += "<div class='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>\n";
         
-        bodyOutput += "    <form action='/cgi-bin/blogs.cgi' method='GET'>\n"; // Form to submit search
+        bodyOutput += "    <form hx-get='/cgi-bin/blogs.cgi' hx-select='#table-container' \
+        hx-target='#table-container' hx-swap='innerHTML' hx-trigger='keyup changed delay:300ms'>\n"; // Form to submit search
         bodyOutput += "        <input type='text' name='search' placeholder='Search...' class='border rounded-md p-2 w-full mb-4' />\n";
         bodyOutput += "        <button type='submit' class='hidden'></button>\n";
         bodyOutput += "    </form>\n";
 
 
         // Scrollable table container
-        bodyOutput += "    <div class='overflow-y-auto' style='max-height: 400px;'>\n"; // Adjust max-height as needed
+        bodyOutput += "    <div id='table-container' class='overflow-y-auto' style='max-height: 400px;'>\n"; // Adjust max-height as needed
         bodyOutput += "        <table class='min-w-full bg-white border border-gray-300'>\n";
         bodyOutput += "            <thead>\n";
         bodyOutput += "                <tr class='bg-gray-200'>\n";

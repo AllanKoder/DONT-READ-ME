@@ -108,6 +108,8 @@ namespace Views
         std::cout << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
         std::cout << "<title>" << title << "</title>\n";
         std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
+        std::cout << "<script src=\"https://unpkg.com/htmx.org@2.0.3\"></script>\n";
+
         std::cout << "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css\">\n";
         std::cout << "</head>\n";
 
@@ -136,7 +138,7 @@ namespace Views
         std::cout << "    <div class=\"px-4 py-6 sm:px-0\">\n";
 
         // Updated card styling
-        std::cout << "      <div class=\"border rounded-lg min-h-[200px] min-w-[300px] p-6 shadow-lg bg-white flex items-center justify-center\">\n";
+        std::cout << "      <div id=\"content-body\" class=\"border rounded-lg min-h-[200px] min-w-[300px] p-6 shadow-lg bg-white flex items-center justify-center\">\n";
 
         // Body content
         std::cout << body;
