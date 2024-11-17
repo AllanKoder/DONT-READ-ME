@@ -19,7 +19,7 @@ namespace Database
 
         statement->setString(1, user.username);
         statement->setString(2, user.email);
-        statement->setString(3, Crypto::hash(user.password, user.username));
+        statement->setString(3, Crypto::hash(user.password, user.email));
         statement->setString(4, user.permissions_level);
 
         statement->executeUpdate();

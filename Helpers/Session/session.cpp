@@ -197,9 +197,9 @@ namespace Session
         return std::nullopt;
     }
 
-    // Function to log in a user with username and password
+    // Function to log in a user with email and password
     // will get rid of their old session_token
-    std::optional<std::string> login(std::string username, std::string password)
+    std::optional<std::string> login(std::string email, std::string password)
     {
         Logger::logInfo("Reached login() function");
 
@@ -207,23 +207,23 @@ namespace Session
 
         auto connection = Database::GetConnection(); // Get a database connection
 
-        // Hash the password using Crypto with username as salt
-        std::string hashedPassword = Crypto::hash(password, username);
+        // Hash the password using Crypto with email as salt
+        std::string hashedPassword = Crypto::hash(password, email);
 
-        // Prepare an SQL statement to check if username and password hash match
+        // Prepare an SQL statement to check if email and password hash match
         std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
-            "SELECT id FROM users WHERE username = ? AND password_hash = ?"));
+            "SELECT id FROM users WHERE email = ? AND password_hash = ?"));
 
-        selectStatement->setString(1, username);
+        selectStatement->setString(1, email);
         selectStatement->setString(2, hashedPassword);
 
-        Logger::logInfo("username: " + username + " hashed password: " + hashedPassword);
+        Logger::logInfo("email: " + email + " hashed password: " + hashedPassword);
 
         try
         {
             std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
 
-            // Is a valid username and password
+            // Is a valid email and password
             if (res->next())
             {
                 int userId = res->getInt("id"); // Get user ID from result set
@@ -243,11 +243,11 @@ namespace Session
 
             Logger::logWarning("Cannot find the user and password given");
             connection->close();
-            return std::nullopt; // Login failed: no matching username/password found
+            return std::nullopt; // Login failed: no matching email/password found
         }
         catch (sql::SQLException &e)
         {
-            std::string output = "Cannot check username and password: ";
+            std::string output = "Cannot check email and password: ";
             output += e.what(); // Log any SQL exceptions that occur during execution
             Logger::logCritical(output);
             connection->close();

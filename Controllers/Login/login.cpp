@@ -6,6 +6,7 @@
 #include "../../Views/redirect.h"
 #include "../../Helpers/Database/Users/users.h"
 #include "../../Helpers/Session/session.h"
+#include "../../Helpers/String/string_helpers.h"
 #include "../../Helpers/Request/request.h"
 #include <iostream>
 #include <cgicc/HTTPCookie.h>
@@ -37,7 +38,7 @@ namespace Controllers
         std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
 
         // Check if the user has filled the parameters
-        if (postData.count("username") == 0 || postData.count("password") == 0)
+        if (postData.count("email") == 0 || postData.count("password") == 0)
         {
             // Invalid parameters, notify and redirect back to login
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
@@ -45,11 +46,11 @@ namespace Controllers
         }
 
         // Get the post data
-        std::string username = postData.at("username");
-        std::string password = postData.at("password");
+        std::string email = StringHelpers::urlDecode(postData.at("email"));
+        std::string password = StringHelpers::urlDecode(postData.at("password"));
 
-        Logger::logInfo("Logging in with username: " + username + " password: " + password); 
-        std::optional<std::string> token = Session::login(username, password);
+        Logger::logInfo("Logging in with email: " + email + " password: " + password); 
+        std::optional<std::string> token = Session::login(email, password);
         
         if (token.has_value())
         {
@@ -63,7 +64,7 @@ namespace Controllers
         {
             // Invalid credentials, go back to login with error notification
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
-                .setNotification(Views::NotificationType::WARNING, "Invalid username or password.");
+                .setNotification(Views::NotificationType::WARNING, "Invalid email or password.");
         }
     }
 
