@@ -12,14 +12,16 @@ SOURCES = 	blogs.cpp \
 			../../Views/views.cpp \
 			../../Views/components/header.comp.cpp \
 			../../Views/sections/blogs/blogs.view.cpp \
+			../../Controllers/Blog/blog.cpp \
 			../../Logger/logger.cpp \
 			../../Views/redirect.cpp \
-			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
 			../../Helpers/Session/session.cpp \
 			../../Helpers/Request/requests.cpp \
 			../../Helpers/String/string_helpers.cpp \
+			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Database/Users/users.cpp \
+			../../Helpers/Database/Blogs/blogs.cpp \
 
 
 # Object files

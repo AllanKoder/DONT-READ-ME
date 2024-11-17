@@ -2,12 +2,13 @@
 #include <iostream>
 #include <cgicc/HTMLClasses.h>
 #include <cgicc/HTTPRedirectHeader.h>
-#include "../Logger/logger.h"
 #include <sstream>
 #include "components/header.comp.h"
 #include <string>
 #include <string.h>
 #include "../Helpers/String/string_helpers.h"
+#include "../Helpers/Request/request.h"
+#include "../Logger/logger.h"
 
 namespace Views
 {
@@ -48,43 +49,28 @@ namespace Views
 
     void View::getNotifications()
     {
-        if (cgi->getEnvironment().getQueryString().find("notification") != std::string::npos)
+        std::string notifValue = Request::getQueryValue("notification", cgi->getEnvironment().getQueryString());
+        if (!notifValue.empty())
         {
-            auto params = cgi->getEnvironment().getQueryString();
+            // Split by pipe '|' to separate type and message
+            std::vector<std::string> parts = StringHelpers::split(notifValue, "|");
 
-            // Extract notification parameter value
-            size_t pos = params.find("notification=");
-            if (pos != std::string::npos)
+            // Check if there's a message after the '|'
+            if (parts.size() == 2)
             {
-                size_t start = pos + strlen("notification=");
-                size_t end = params.find_first_of("&", start); // Find '&' or end of string
-                if (end == std::string::npos)
+                std::string type = parts[0];
+                std::string message = parts[1];
+                message = StringHelpers::urlDecode(message); // Decode the message
+
+                // Display notification using Notyf
+                if (type == "Success")
                 {
-                    end = params.length(); // No '&' found, take till the end
+                    std::cout << "notyf.success('" << message << "');\n";
                 }
-
-                std::string notifValue = params.substr(start, end - start);
-
-                // Split by pipe '|' to separate type and message
-                std::vector<std::string> parts = StringHelpers::split(notifValue, "|");
-
-                // Check if there's a message after the '|'
-                if (parts.size() == 2)
+                else if (type == "Warning")
                 {
-                    std::string type = parts[0];
-                    std::string message = parts[1];
-                    message = StringHelpers::urlDecode(message); // Decode the message
-                    // Display notification using Notyf
-                    if (type == "Success")
-                    {
-                        std::cout << "notyf.success('" << message << "');\n";
-                    }
-                    else if (type == "Warning")
-                    {
-                        std::cout << "notyf.error('" << message << "');\n";
-                    }
+                    std::cout << "notyf.error('" << message << "');\n";
                 }
-
             }
         }
     }

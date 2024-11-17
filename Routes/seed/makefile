@@ -11,14 +11,15 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 SOURCES = 	seed.cpp \
 			../../Logger/logger.cpp \
 			../../Controllers/Seeding/seed.cpp \
+			../../Views/views.cpp \
+			../../Views/sections/seed/seed.view.cpp \
 			../../Views/components/header.comp.cpp \
 			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
 			../../Helpers/Database/Users/users.cpp \
 			../../Helpers/Session/session.cpp \
-			../../Views/sections/seed/seed.view.cpp \
 			../../Helpers/String/string_helpers.cpp \
-			../../Views/views.cpp \
+			../../Helpers/Request/requests.cpp \
 			
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
