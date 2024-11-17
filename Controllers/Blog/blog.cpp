@@ -65,7 +65,7 @@ namespace Controllers
         std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
 
         // Check if the user has filled the parameters for posting
-        if (postData.count("title") == 0 || postData.count("content") == 0)
+        if (postData.count("title") == 0 || postData.count("content") == 0 || postData.count("csrf_token") == 0)
         {
             Logger::logWarning("Invalid parameters for creating blog");
             // Invalid parameters, notify and redirect back to post
@@ -73,11 +73,19 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
         }
 
+        std::string csrfToken = StringHelpers::urlDecode(postData.at("csrf_token"));
+        if (!Session::isValidCsrfToken(cgi, csrfToken))
+        {
+            return Views::Redirect(cgi, "/cgi-bin/createBlog.cgi")
+                .setNotification(Views::NotificationType::WARNING, "You almost got hacked! someone tried to csrf you!");
+        }
+
         int dtoUserId = userInfo.value().id;
         std::string dtoContent = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("content")));
         std::string dtoTitle = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("title")));
 
         Database::Requests::BlogPost blogPost(dtoTitle, dtoContent, dtoUserId);
+        
 
         // Create the blog under the user
         try

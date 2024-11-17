@@ -18,6 +18,7 @@ namespace Session
         } else if (levelStr == "user") {
             return USER;
         }
+        return USER;
     }
 
     std::optional<std::string> getSessionToken(std::shared_ptr<cgicc::Cgicc> cgi)
@@ -257,19 +258,19 @@ namespace Session
         }
     }
 
-    std::optional<std::string> getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)
+    std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)
     {
         // Hash it, using the Crypto::hash
         std::optional<std::string> token = getSessionToken(cgi);
         if (!token.has_value())
         {
-            return std::nullopt;
+            return "This is invalid!!!! You should be logged in";
         }
  
         return Crypto::hash(token.value(), CRSF_KEY);
     }
 
-    bool isCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string givenToken)
+    bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string givenToken)
     {
         // Hash it, using the Crypto::hash
         std::optional<std::string> token = getSessionToken(cgi);

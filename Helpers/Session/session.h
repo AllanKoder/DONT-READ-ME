@@ -30,7 +30,7 @@ namespace Session
     std::optional<std::string> login(std::string username, std::string password);
 
     // create a anti-csrf token
-    std::optional<std::string> getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);
+    std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);
 
     // check if anti-csrf token is valid
     bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string token);
