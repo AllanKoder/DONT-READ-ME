@@ -14,8 +14,18 @@ namespace Database
 
         // Prepare the SELECT statement
         std::unique_ptr<sql::PreparedStatement> statement(
-            connection->prepareStatement("SELECT u.username, b.created_on, b.title FROM blogs b JOIN users u ON b.user_id = u.id")
+            connection->prepareStatement(
+                "SELECT u.username, b.created_on, b.title "
+                "FROM blogs b "
+                "JOIN users u ON b.user_id = u.id "
+                "WHERE u.username LIKE ? OR b.title LIKE ?"
+            )
         );
+
+        // Prepare the query parameters for LIKE
+        std::string likeQuery = query + "%"; // Wildcards for any back, but must have same front, for 
+        statement->setString(1, likeQuery);
+        statement->setString(2, likeQuery);
 
         // Execute the query
         std::unique_ptr<sql::ResultSet> resultSet(statement->executeQuery());
