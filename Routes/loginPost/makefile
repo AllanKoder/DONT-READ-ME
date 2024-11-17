@@ -19,6 +19,7 @@ SOURCES = 	loginPost.cpp \
 			../../Controllers/Login/login.cpp \
 			../../Helpers/Session/session.cpp \
 			../../Helpers/Request/requests.cpp \
+			../../Helpers/String/string_helpers.cpp \
 			../../Helpers/Database/Users/users.cpp \
 
 # Object files

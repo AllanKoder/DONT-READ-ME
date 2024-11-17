@@ -5,6 +5,9 @@
 #include "../Logger/logger.h"
 #include <sstream>
 #include "components/header.comp.h"
+#include <string>
+#include <string.h>
+#include "../Helpers/String/string_helpers.h"
 
 namespace Views
 {
@@ -12,9 +15,6 @@ namespace Views
     {
         title = "No Title";
         cookies.clear();
-
-        // Libraries
-        scripts = "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
     }
 
     std::string View::getHeader()
@@ -24,7 +24,7 @@ namespace Views
         if (!redirectUrl.empty())
         {
             // There is a redirect, set it as the header
-            outputHeader << "Status: 301 Moved Permanently\n";
+            outputHeader << "Status: 302 Found\n";
             outputHeader << "Location: " << redirectUrl << "\n";
         }
         else
@@ -46,6 +46,68 @@ namespace Views
         return outputHeader.str();
     }
 
+    void View::getNotifications()
+    {
+        if (cgi->getEnvironment().getQueryString().find("notification") != std::string::npos)
+        {
+            auto params = cgi->getEnvironment().getQueryString();
+
+            // Extract notification parameter value
+            size_t pos = params.find("notification=");
+            if (pos != std::string::npos)
+            {
+                size_t start = pos + strlen("notification=");
+                size_t end = params.find_first_of("&", start); // Find '&' or end of string
+                if (end == std::string::npos)
+                {
+                    end = params.length(); // No '&' found, take till the end
+                }
+
+                std::string notifValue = params.substr(start, end - start);
+
+                // Split by pipe '|' to separate type and message
+                std::vector<std::string> parts = StringHelpers::split(notifValue, "|");
+
+                // Check if there's a message after the '|'
+                if (parts.size() == 2)
+                {
+                    std::string type = parts[0];
+                    std::string message = parts[1];
+                    message = StringHelpers::urlDecode(message); // Decode the message
+                    // Display notification using Notyf
+                    if (type == "Success")
+                    {
+                        std::cout << "notyf.success('" << message << "');\n";
+                    }
+                    else if (type == "Warning")
+                    {
+                        std::cout << "notyf.error('" << message << "');\n";
+                    }
+                }
+
+            }
+        }
+    }
+
+    View &View::setNotification(NotificationType type, const std::string &message)
+    {
+        // Create a notification string in the format "Type|Message"
+        std::string notificationQuery;
+        notificationQuery = (type == NotificationType::SUCCESS ? "Success" : "Warning") + std::string("|") + message;
+
+        // Append to redirect URL as a query parameter
+        if (redirectUrl.find('?') != std::string::npos)
+        {
+            redirectUrl += "&notification=" + notificationQuery;
+        }
+        else
+        {
+            redirectUrl += "?notification=" + notificationQuery;
+        }
+
+        return *this;
+    }
+
     void View::render()
     {
         // Output HTTP headers
@@ -60,22 +122,39 @@ namespace Views
         std::cout << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
         std::cout << "<title>" << title << "</title>\n";
         std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
-        std::cout << scripts << "\n";
+        std::cout << "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css\">\n";
         std::cout << "</head>\n";
 
         // Start the body
         std::cout << "<body class=\"h-full bg-white\">\n";
+        std::cout << "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n";
 
+        // Header component
         std::cout << Views::Header(cgi);
 
+        // Initialize Notyf
+        std::cout << "<script>\n";
+        std::cout << "var notyf = new Notyf({\
+            position: {\
+                x: 'center',\
+                y: 'top',\
+            }});\n";
+
+        getNotifications(); // Call to get notifications
+
+        std::cout << "</script>\n";
+
         // Main content
-        std::cout << "<main class=\"flex items-center justify-center h-5/6\">\n"; // Full height for main
+        std::cout << "<main class=\"flex items-center justify-center h-5/6\">\n";
         std::cout << "  <div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">\n";
         std::cout << "    <div class=\"px-4 py-6 sm:px-0\">\n";
 
         // Updated card styling
         std::cout << "      <div class=\"border rounded-lg min-h-[200px] min-w-[300px] p-6 shadow-lg bg-white flex items-center justify-center\">\n";
-        std::cout << body << "\n"; // Body content
+
+        // Body content
+        std::cout << body;
+
         std::cout << "      </div>\n";
 
         std::cout << "    </div>\n";
@@ -114,12 +193,6 @@ namespace Views
     View &View::setTitle(std::string newTitle)
     {
         title = newTitle;
-        return *this;
-    }
-
-    View &View::setNotification(NotificationType type, std::string message)
-    {
-
         return *this;
     }
 }

@@ -12,6 +12,7 @@ namespace Views
 {
     enum class NotificationType
     {
+        NONE,
         WARNING,
         SUCCESS,
     };
@@ -22,20 +23,21 @@ namespace Views
         std::string redirectUrl;
         std::string body;
         std::string headers;
-        std::string scripts;
         std::string title;
         std::vector<std::string> cookies;
         std::string getHeader();
         std::shared_ptr<cgicc::Cgicc> cgi;
+
+        void getNotifications();
     public:
         View(std::shared_ptr<cgicc::Cgicc> cgi);
         void render();
         View& setHeader(std::string header);
         View& setRedirect(const std::string& url);
         View& setCookie(std::string cookie);
-        View& setNotification(NotificationType notification, std::string message);
         View& setTitle(std::string newTitle);
         View& setBody(std::string body);
+        View& setNotification(NotificationType type, const std::string& message);
     };   
 }
 

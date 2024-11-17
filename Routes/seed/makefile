@@ -17,6 +17,7 @@ SOURCES = 	seed.cpp \
 			../../Helpers/Database/Users/users.cpp \
 			../../Helpers/Session/session.cpp \
 			../../Views/sections/seed/seed.view.cpp \
+			../../Helpers/String/string_helpers.cpp \
 			../../Views/views.cpp \
 			
 # Object files

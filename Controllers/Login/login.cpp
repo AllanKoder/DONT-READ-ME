@@ -24,8 +24,9 @@ namespace Controllers
         if (Session::userId(cgi).has_value())
         {
             Logger::logInfo("Login Post: User is already logged in");
-            // Redirect to homepage
-            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi");
+            // Redirect to homepage with notification
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::SUCCESS, "Already Logged in!");
         }
 
         // Get the request body
@@ -38,8 +39,9 @@ namespace Controllers
         // Check if the user has filled the parameters
         if (postData.count("username") == 0 || postData.count("password") == 0)
         {
-            // Invalid parameters, notify
-            return Views::Redirect(cgi, "/cgi-bin/login.cgi");
+            // Invalid parameters, notify and redirect back to login
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
         }
 
         // Get the post data
@@ -48,16 +50,20 @@ namespace Controllers
 
         Logger::logInfo("Logging in with username: " + username + " password: " + password); 
         std::optional<std::string> token = Session::login(username, password);
+        
         if (token.has_value())
         {
-            // Direct to homepage with cookies
+            // Direct to homepage with cookies and success notification
             std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly";
-            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi" ).setCookie(cookie);
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setCookie(cookie)
+                .setNotification(Views::NotificationType::SUCCESS, "Login successful! Welcome back.");
         }
         else
         {
-            // Is invalid, go back to login with message
-            return Views::Redirect(cgi, "/cgi-bin/login.cgi");
+            // Invalid credentials, go back to login with error notification
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Invalid username or password.");
         }
     }
 
@@ -67,7 +73,8 @@ namespace Controllers
         {
             Logger::logInfo("Login Page: User is already logged in");
             // Redirect to homepage
-            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi");
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::SUCCESS, "Already Logged in");
         }
 
         return Views::Login(cgi);
