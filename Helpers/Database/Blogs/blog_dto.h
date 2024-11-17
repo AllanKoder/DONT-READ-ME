@@ -3,11 +3,25 @@
 
 #include "../../../config.h"
 #include <string>
+#include <utility>
 
 namespace Database::Requests
 {
-    struct BlogModel
+    class BlogModel
     {
+    public:
+        BlogModel(
+            std::string username,
+            std::string content,
+            int upvotes,
+            std::string dateCreated,
+            std::string title) : username(std::move(username)),
+                                 content(std::move(content)),
+                                 upvotes(upvotes),
+                                 dateCreated(std::move(dateCreated)),
+                                 title(std::move(title)) {}
+
+        // Member variables
         std::string username;
         std::string content;
         int upvotes;
@@ -15,12 +29,21 @@ namespace Database::Requests
         std::string title;
     };
 
-    struct BlogPost
+    class BlogPost
     {
+    public:
+        BlogPost(
+            std::string title,
+            std::string content,
+            int userId) : title(std::move(title)),
+                          content(std::move(content)),
+                          userId(userId) {}
+
         std::string title;
         std::string content;
         int userId;
     };
+
 }
 
 #endif

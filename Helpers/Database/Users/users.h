@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <mariadb/conncpp.hpp>
-#include "create_user_request.h"
+#include "user_dto.h"
 
 namespace Database
 {

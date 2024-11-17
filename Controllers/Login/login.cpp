@@ -55,7 +55,7 @@ namespace Controllers
         if (token.has_value())
         {
             // Direct to homepage with cookies and success notification
-            std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly";
+            std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly ; SameSite=Strict";
             return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
                 .setCookie(cookie)
                 .setNotification(Views::NotificationType::SUCCESS, "Login successful! Welcome back.");

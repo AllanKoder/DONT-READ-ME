@@ -1,5 +1,5 @@
-#ifndef CREATE_USER_REQUEST_H
-#define CREATE_USER_REQUEST_H
+#ifndef USER_DTO_H
+#define USER_DTO_H
 
 #include "../../../config.h"
 

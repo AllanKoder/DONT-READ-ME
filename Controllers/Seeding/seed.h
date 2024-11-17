@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <mariadb/conncpp.hpp>
-#include "../../Helpers/Database/Users/create_user_request.h"
+#include "../../Helpers/Database/Users/user_dto.h"
 #include "../../Views/views.h"
 
 namespace Controllers

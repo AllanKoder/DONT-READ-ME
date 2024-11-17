@@ -73,11 +73,11 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
         }
 
-        Database::Requests::BlogPost blogPost;
+        int dtoUserId = userId.value();
+        std::string dtoContent = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("content")));
+        std::string dtoTitle = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("title")));
 
-        blogPost.userId = userId.value();
-        blogPost.content = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("content")));
-        blogPost.title = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("title")));
+        Database::Requests::BlogPost blogPost(dtoTitle, dtoContent, dtoUserId);
 
         // Create the blog under the user
         try
