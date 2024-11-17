@@ -17,6 +17,10 @@ namespace Views
         // Check if the user is logged in
         if (Session::userId(nav.cgi).has_value())
         {
+            // Create a blog
+            output_text << "        <div>\n";
+            output_text << "            <a href=\"/cgi-bin/createBlog.cgi\" class=\"text-blue-600 hover:text-blue-800\">Create Blog</a>\n";
+            output_text << "        </div>\n";
             // Print the Logout header
             output_text << "        <div>\n";
             output_text << "            <a href=\"/cgi-bin/logout.cgi\" class=\"text-blue-600 hover:text-blue-800\">Logout</a>\n";
