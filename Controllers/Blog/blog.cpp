@@ -7,8 +7,12 @@ namespace Controllers
 {
     Views::View blogsPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        std::vector<Database::Requests::BlogPost> blogs = Database::viewBlogs("");
-
-        return Views::Blogs(cgi, blogs);
+        try {
+            std::vector<Database::Requests::BlogPost> blogs = Database::viewBlogs("");
+            return Views::Blogs(cgi, blogs);
+        }
+        catch (sql::SQLException e){
+            return Views::Blogs(cgi, {}).setNotification(Views::NotificationType::WARNING, "Cannot load blogs :(");
+        }
     }
 }
