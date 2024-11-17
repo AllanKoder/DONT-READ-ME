@@ -22,7 +22,7 @@ namespace Controllers
     Views::View loginPost(std::shared_ptr<cgicc::Cgicc> cgi)
     {
         // User is already authenticated
-        if (Session::userId(cgi).has_value())
+        if (Session::userInfo(cgi).has_value())
         {
             Logger::logInfo("Login Post: User is already logged in");
             // Redirect to homepage with notification
@@ -70,8 +70,8 @@ namespace Controllers
 
     Views::View logoutPost(std::shared_ptr<cgicc::Cgicc> cgi)
     {  
-        std::optional<int> userId = Session::userId(cgi);
-        if (!userId.has_value())
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (!userInfo.has_value())
         {
             Logger::logInfo("User is trying to log out while logged in.");
             // Redirect to login
@@ -80,7 +80,7 @@ namespace Controllers
         }
 
         // Delete all session tokens of user Id
-        Session::deleteSessionToken(userId.value());
+        Session::deleteSessionToken(userInfo.value().id);
         
         // Set as null cookie
         std::string cookie = "SESSION_TOKEN=; HttpOnly";
@@ -91,7 +91,7 @@ namespace Controllers
 
     Views::View loginPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        if (Session::userId(cgi).has_value())
+        if (Session::userInfo(cgi).has_value())
         {
             Logger::logInfo("Login Page: User is already logged in");
             // Redirect to homepage

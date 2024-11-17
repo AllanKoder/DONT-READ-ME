@@ -14,8 +14,8 @@ namespace Controllers
 {
     Views::View blogsPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        std::optional<int> userId = Session::userId(cgi);
-        if (userId.has_value() == false)
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
         {
             // Need to be logged in
             return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
@@ -37,8 +37,8 @@ namespace Controllers
 
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        std::optional<int> userId = Session::userId(cgi);
-        if (userId.has_value() == false)
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
         {
             // Need to be logged in
             return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
@@ -49,8 +49,8 @@ namespace Controllers
 
     Views::View postBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        std::optional<int> userId = Session::userId(cgi);
-        if (userId.has_value() == false)
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
         {
             // Need to be logged in
             return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
@@ -73,7 +73,7 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
         }
 
-        int dtoUserId = userId.value();
+        int dtoUserId = userInfo.value().id;
         std::string dtoContent = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("content")));
         std::string dtoTitle = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("title")));
 

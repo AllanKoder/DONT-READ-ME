@@ -13,7 +13,7 @@ namespace Views
         output_text << "<header class=\"bg-gray-100 shadow-md border-b border-gray-300\">\n";
         output_text << "    <div class=\"max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between\">\n";
       
-        if (Session::userId(nav.cgi).has_value())
+        if (Session::userInfo(nav.cgi).has_value())
         {
             // User is authenticated, display as hyperlink
             output_text << "        <h1 class=\"text-3xl font-bold text-gray-900\">\n";
@@ -27,7 +27,7 @@ namespace Views
         }
       
         // Check if the user is logged in
-        if (Session::userId(nav.cgi).has_value())
+        if (Session::userInfo(nav.cgi).has_value())
         {
             // Create a blog
             output_text << "        <div>\n";

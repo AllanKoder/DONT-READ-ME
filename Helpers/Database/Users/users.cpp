@@ -1,7 +1,7 @@
 #include "users.h"
 #include <memory>
 #include <mariadb/conncpp.hpp>
-#include "create_user_request.h"
+#include "user_dto.h"
 #include "../../Cryptography/crypto.h"
 #include "../db_connection.h"
 

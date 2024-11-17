@@ -12,16 +12,49 @@
 
 namespace Session
 {
-    std::optional<int> isValidAuthToken(std::string token)
+    PrivilegeLevel stringToPrivilegeLevel(const std::string& levelStr) {
+        if (levelStr == "admin") {
+            return ADMIN;
+        } else if (levelStr == "user") {
+            return USER;
+        }
+    }
+
+    std::optional<std::string> getSessionToken(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        const std::vector<cgicc::HTTPCookie> cookiesList = cgi->getEnvironment().getCookieList();
+        // check if there is token,
+        // Search for the cookie variable "SESSION_TOKEN"
+        for (auto cookie : cookiesList)
+        {
+            if (cookie.getName() == "SESSION_TOKEN")
+            {
+                return cookie.getValue();
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    // Function to retrieve the user ID from the SESSION_TOKEN cookie
+    std::optional<UserInfo> userInfo(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        std::optional<std::string> token = getSessionToken(cgi);
+
+        if (!token.has_value())
+        {
+            Logger::logWarning("There is no session token");
+            return std::nullopt;
+        }
+
         // 1. Check the token is not modified
         // 2. Check if the token is in the database
         // 3. Check if the token is expired
 
-        Logger::logInfo("checking valid token on: " + token);
+        Logger::logInfo("checking valid token on: " + token.value());
 
         // Check if the token has the correct length
-        if (token.length() != SESSION_TOKEN_SIZE) {
+        if (token.value().length() != SESSION_TOKEN_SIZE) {
             return std::nullopt;
         }
 
@@ -29,10 +62,15 @@ namespace Session
         auto connection = Database::GetConnection(); // Get a database connection
         
         std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
-            "SELECT TIMESTAMPDIFF(SECOND, last_accessed, CURRENT_TIMESTAMP()) as time_difference, user_id FROM session_tokens WHERE value = ?")
+            "SELECT TIMESTAMPDIFF(SECOND, last_accessed, CURRENT_TIMESTAMP()) as time_difference, \
+            st.user_id, \
+            u.permission_level \
+            FROM session_tokens st \
+            JOIN users u ON st.user_id = u.id \
+            WHERE st.value = ?;")
         );
 
-        selectStatement->setString(1, token);
+        selectStatement->setString(1, token.value());
 
         try
         {
@@ -49,14 +87,20 @@ namespace Session
                     return std::nullopt;
                 }
                 int userId = res->getInt("user_id"); // Get user ID from result set
+                PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
+
+                UserInfo info;
+                info.id = userId;
+                info.privelegeLevel = level;
+
                 Logger::logInfo("Got the user_id: " + std::to_string(userId));
                 connection->close();
-                return userId;
+                return info;
             }
         }
         catch (sql::SQLException &e)
         {
-            std::string output = "Cannot fetch the user Token";
+            std::string output = "Cannot fetch the user Token ";
             output += e.what(); // Log any SQL exceptions that occur during execution
             Logger::logCritical(output);
             connection->close();
@@ -64,32 +108,6 @@ namespace Session
         }
 
         connection->close();
-        return std::nullopt;
-    }
-
-    // Function to retrieve the user ID from the SESSION_TOKEN cookie
-    std::optional<int> userId(std::shared_ptr<cgicc::Cgicc> cgi)
-    {
-        const std::vector<cgicc::HTTPCookie> cookiesList = cgi->getEnvironment().getCookieList();
-        // check if there is token,
-        // Search for the cookie variable "SESSION_TOKEN"
-        for (auto cookie : cookiesList)
-        {
-            if (cookie.getName() == "SESSION_TOKEN")
-            {
-                std::string token = cookie.getValue();
-                std::optional<int> userId = isValidAuthToken(token);
-                if (!userId.has_value())
-                {
-                    Logger::logInfo("Invalid session token");
-                    return std::nullopt;
-                }
-                
-                // The session_token is in the database
-                return userId.value();
-            }
-        }
-
         return std::nullopt; // No Cookie found
     }
 
@@ -237,5 +255,29 @@ namespace Session
             connection->close();
             return std::nullopt; // Return false on exception
         }
+    }
+
+    std::optional<std::string> getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        // Hash it, using the Crypto::hash
+        std::optional<std::string> token = getSessionToken(cgi);
+        if (!token.has_value())
+        {
+            return std::nullopt;
+        }
+ 
+        return Crypto::hash(token.value(), CRSF_KEY);
+    }
+
+    bool isCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string givenToken)
+    {
+        // Hash it, using the Crypto::hash
+        std::optional<std::string> token = getSessionToken(cgi);
+        if (!token.has_value())
+        {
+            return false;
+        }
+
+        return Crypto::hash(token.value(), CRSF_KEY) == givenToken;
     }
 }
