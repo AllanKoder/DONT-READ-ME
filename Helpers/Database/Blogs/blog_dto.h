@@ -11,17 +11,20 @@ namespace Database::Requests
     {
     public:
         BlogModel(
+            int id,
             std::string username,
             std::string content,
             int upvotes,
             std::string dateCreated,
-            std::string title) : username(std::move(username)),
+            std::string title) : id(id),
+                                 username(std::move(username)),
                                  content(std::move(content)),
                                  upvotes(upvotes),
                                  dateCreated(std::move(dateCreated)),
                                  title(std::move(title)) {}
 
         // Member variables
+        int id;
         std::string username;
         std::string content;
         int upvotes;

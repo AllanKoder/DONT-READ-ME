@@ -36,7 +36,9 @@ namespace Views
             bodyOutput += "                <tr>\n";
             bodyOutput += "                    <td class='border px-4 py-2'>" + std::to_string(post.upvotes) + "</td>\n";
             bodyOutput += "                    <td class='border px-4 py-2'>" + post.username + "</td>\n";
-            bodyOutput += "                    <td class='border px-4 py-2'>" + post.title + "</td>\n";
+            bodyOutput += "                    <td class='border px-4 py-2'>\n";
+            bodyOutput += "                        <a href='/cgi-bin/blog.cgi/" + std::to_string(post.id) + "' class='text-blue-500 hover:underline'>" + post.title + "</a>\n";
+            bodyOutput += "                    </td>\n";
             bodyOutput += "                </tr>\n";
         }
         bodyOutput += "            </tbody>\n";
