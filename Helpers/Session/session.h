@@ -12,6 +12,8 @@ namespace Session
     // returns user id if logged in, otherwise null
     std::optional<int> userId(std::shared_ptr<cgicc::Cgicc> cgi);
 
+    bool deleteSessionToken(int userId);
+
     // returns session token if successful
     std::optional<std::string> login(std::string username, std::string password);
 }

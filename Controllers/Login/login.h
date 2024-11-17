@@ -8,6 +8,7 @@
 namespace Controllers
 {
     Views::View loginPost(std::shared_ptr<cgicc::Cgicc> cgi);
+    Views::View logoutPost(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View loginPage(std::shared_ptr<cgicc::Cgicc> cgi);
 }
 

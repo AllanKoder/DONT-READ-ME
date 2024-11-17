@@ -68,6 +68,27 @@ namespace Controllers
         }
     }
 
+    Views::View logoutPost(std::shared_ptr<cgicc::Cgicc> cgi)
+    {  
+        std::optional<int> userId = Session::userId(cgi);
+        if (!userId.has_value())
+        {
+            Logger::logInfo("User is trying to log out while logged in.");
+            // Redirect to login
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::SUCCESS, "Not Logged in");
+        }
+
+        // Delete all session tokens of user Id
+        Session::deleteSessionToken(userId.value());
+        
+        // Set as null cookie
+        std::string cookie = "SESSION_TOKEN=; HttpOnly";
+        return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+            .setCookie(cookie)
+            .setNotification(Views::NotificationType::SUCCESS, "Successfully logged out!");
+    }
+
     Views::View loginPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
         if (Session::userId(cgi).has_value())

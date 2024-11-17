@@ -109,8 +109,7 @@ namespace Session
         return std::nullopt; // No Cookie found
     }
 
-    // Function to create a session token for a given user ID
-    std::optional<std::string> createSessionToken(int userId)
+    bool deleteSessionToken(int userId)
     {
         // Delete all existing tokens with the user
         auto connection = Database::GetConnection(); // Get a database connection
@@ -134,9 +133,20 @@ namespace Session
             output += e.what(); // Log any SQL exceptions that occur during execution
             Logger::logCritical(output);
             connection->close();
-            return std::nullopt; // Return false on exception
+            return false;
         }
-        
+        return true;
+    }
+
+    // Function to create a session token for a given user ID
+    std::optional<std::string> createSessionToken(int userId)
+    {
+        if (!deleteSessionToken(userId))
+        {
+            Logger::logInfo("Could not delete old session tokens");
+            return std::nullopt;
+        }
+
         // Create a random token of length, use the SHA with a random input
         
         // Turn the SESSION_TOKEN_SIZE to the the byte length (which is smaller when converted to string again)
@@ -164,6 +174,7 @@ namespace Session
         std::string token = randomHex + macCode;
         Logger::logInfo("token:" + token);
         
+        auto connection = Database::GetConnection(); // Get a database connection
         // Create the token in the database
         std::shared_ptr<sql::PreparedStatement> insertStatement(connection->prepareStatement(
             "INSERT INTO session_tokens VALUES(?, CURRENT_TIMESTAMP(), ?)")

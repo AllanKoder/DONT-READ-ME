@@ -19,7 +19,7 @@ namespace Views
         {
             // Print the Logout header
             output_text << "        <div>\n";
-            output_text << "            <a href=\"/logout\" class=\"text-blue-600 hover:text-blue-800\">Logout</a>\n";
+            output_text << "            <a href=\"/cgi-bin/logout.cgi\" class=\"text-blue-600 hover:text-blue-800\">Logout</a>\n";
             output_text << "        </div>\n";
         }
 
