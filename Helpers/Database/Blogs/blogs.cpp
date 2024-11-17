@@ -23,7 +23,10 @@ namespace Database
         );
 
         // Prepare the query parameters for LIKE
-        std::string likeQuery = query + "%"; // Wildcards for any back, but must have same front, for 
+        
+        // In future, we can use a inverted index or alike for faster searches
+        std::string likeQuery = "%" + query + "%"; // Wildcards
+
         statement->setString(1, likeQuery);
         statement->setString(2, likeQuery);
 
