@@ -25,6 +25,16 @@ namespace Views
             output_text += "        <h1 class=\"text-3xl font-bold text-gray-900\">don't README</h1>\n";
         }
 
+        // Check if the user is the admin
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(this->cgi);
+        if (userInfo.has_value() && userInfo.value().privilegeLevel == Session::ADMIN)
+        {
+            // Create a user
+            output_text += "        <div>\n";
+            output_text += "            <a href=\"/cgi-bin/createUser.cgi\" class=\"text-blue-600 hover:text-blue-800\">Create User</a>\n";
+            output_text += "        </div>\n";
+        }
+
         // Check if the user is logged in
         if (Session::userInfo(this->cgi).has_value())
         {

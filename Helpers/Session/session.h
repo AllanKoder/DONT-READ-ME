@@ -18,7 +18,7 @@ namespace Session
     struct UserInfo
     {
         int id;
-        PrivilegeLevel privelegeLevel;
+        PrivilegeLevel privilegeLevel;
     };
 
     // returns user info if logged in, otherwise null

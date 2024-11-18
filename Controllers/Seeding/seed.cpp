@@ -12,6 +12,13 @@ namespace Controllers
     {
         try
         {
+            // Create admin
+            auto admin = Database::Requests::CreateUserRequest(
+                "admin",
+                "admin@admin.com",
+                "admin",
+                "admin");
+
             // Create user1
             auto user1 = Database::Requests::CreateUserRequest(
                 "user",
@@ -26,6 +33,7 @@ namespace Controllers
                 "password1",
                 "user");
 
+            Database::createUser(admin);
             Database::createUser(user1);
             Database::createUser(user2);
 

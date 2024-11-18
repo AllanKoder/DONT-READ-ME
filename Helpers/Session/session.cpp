@@ -94,7 +94,7 @@ namespace Session
 
                 UserInfo info;
                 info.id = userId;
-                info.privelegeLevel = level;
+                info.privilegeLevel = level;
 
                 Logger::logInfo("Got the user_id: " + std::to_string(userId));
                 connection->close();
@@ -282,20 +282,15 @@ namespace Session
         }
 
         // Compare the user session token to the one in the post data
-        cgicc::CgiEnvironment env = cgi->getEnvironment();
-        std::string requestBody = env.getPostData();
-        std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
-
-        Logger::logInfo("CSRF Token Post Data " + requestBody);
+        std::string csrfToken = cgi->getElement("csrf_token")->getValue();
         // Check if the user has filled the CSRF token for posting
-        if (postData.count("csrf_token") == 0)
+        if (csrfToken.empty())
         {
             Logger::logWarning("Invalid parameters for creating blog");
             return false; 
         }
 
         // Is their sent token valid?
-        std::string csrfToken = StringHelpers::urlDecode(postData.at("csrf_token"));
         return Crypto::hash(token.value(), CRSF_KEY) == csrfToken;
     }
 }
