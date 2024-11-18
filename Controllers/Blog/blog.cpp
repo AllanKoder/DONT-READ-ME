@@ -16,6 +16,7 @@ namespace Controllers
 {
     Views::View blogsPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        Logger::logInfo("Called blogsPage");
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
         if (userInfo.has_value() == false)
         {
@@ -39,6 +40,7 @@ namespace Controllers
 
     Views::View blogPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        Logger::logInfo("Called blogPage");
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
         if (userInfo.has_value() == false)
         {
@@ -79,8 +81,9 @@ namespace Controllers
 
     Views::View upvoteBlog(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        Logger::logInfo("Called upvoteBlog");
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
-        if (userInfo.has_value() == false)
+        if (!userInfo.has_value())
         {
             // Need to be logged in
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
@@ -90,6 +93,7 @@ namespace Controllers
         // Check CSRF token
         if (!Session::isValidCsrfToken(cgi))
         {
+            Logger::logWarning("Invalid CSRF token for upvoting");
             return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
                 .setNotification(Views::NotificationType::WARNING, "You almost got hacked! someone tried to csrf you!");
         }
@@ -106,15 +110,18 @@ namespace Controllers
         try
         {
             Database::upvoteBlog(blogNumber.value());
+            Logger::logInfo("Finished upvoting");
         }
         catch (const sql::SQLException &e)
         {
             Logger::logWarning("Failed to upvote blog " + std::string(e.what()));
-            return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value())
+            return Views::Redirect(cgi, "cgi-bin/blogs.cgi/")
                 .setNotification(Views::NotificationType::WARNING, "Failed to upvote");
         }
 
-        return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value());
+        Logger::logInfo("Upvoted the blog, rendering a redirect!");
+        return Views::Redirect(cgi, "cgi-bin/blogs.cgi/")
+            .setNotification(Views::NotificationType::SUCCESS, "Upvoted Blog!");
     }
 
     Views::View downvoteBlog(std::shared_ptr<cgicc::Cgicc> cgi)
@@ -159,6 +166,7 @@ namespace Controllers
 
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        Logger::logInfo("Called createBlogPage");
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
         if (userInfo.has_value() == false)
         {
@@ -171,6 +179,7 @@ namespace Controllers
 
     Views::View postBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
     {
+        Logger::logInfo("Called postBlogPage");
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
         if (userInfo.has_value() == false)
         {

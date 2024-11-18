@@ -285,12 +285,15 @@ namespace Session
         cgicc::CgiEnvironment env = cgi->getEnvironment();
         std::string requestBody = env.getPostData();
         std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
+
+        Logger::logInfo("CSRF Token Post Data " + requestBody);
         // Check if the user has filled the CSRF token for posting
         if (postData.count("csrf_token") == 0)
         {
             Logger::logWarning("Invalid parameters for creating blog");
             return false; 
         }
+
         // Is their sent token valid?
         std::string csrfToken = StringHelpers::urlDecode(postData.at("csrf_token"));
         return Crypto::hash(token.value(), CRSF_KEY) == csrfToken;
