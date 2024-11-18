@@ -13,6 +13,7 @@ SOURCES = 	blogs.cpp \
 			../../Views/components/header.comp.cpp \
 			../../Views/components/csrf_token.comp.cpp \
 			../../Views/sections/blogs/blogs.view.cpp \
+            ../../Views/sections/blogs/update_blog.view.cpp \
 			../../Views/sections/blogs/blog.view.cpp \
 			../../Views/sections/blogs/create_blog.view.cpp \
 			../../Controllers/Blog/blog.cpp \

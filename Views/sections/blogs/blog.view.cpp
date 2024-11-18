@@ -22,11 +22,11 @@ namespace Views
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
         if (userInfo.has_value() && userInfo.value().id == post.userId)
         {
-            bodyOutput += "    <button class='text-gray-600 hover:text-gray-800 focus:outline-none'>\n";
+            bodyOutput += "    <a href='/cgi-bin/updateBlog.cgi/" + std::to_string(post.id) + "' class='text-gray-600 hover:text-gray-800 focus:outline-none'>\n";
             bodyOutput += "        <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>\n";
             bodyOutput += "            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'></path>\n";
             bodyOutput += "        </svg>\n";
-            bodyOutput += "    </button>\n";
+            bodyOutput += "    </a>\n";
         }
         bodyOutput += "</div>\n";
 

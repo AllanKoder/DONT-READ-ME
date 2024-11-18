@@ -1,14 +1,11 @@
-#include <iostream>
 #include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/HTMLClasses.h>
 #include <cgicc/Cgicc.h>
 #include "../../Controllers/Blog/blog.h"
 
-// /createBlog.cgi
-int main()
-{
-    // Output content from the login.view.h file
+// /updateBlog.cgi/{int}
+int main() {
     auto cgi = std::make_shared<cgicc::Cgicc>();
-    Controllers::createBlogPage(cgi).render();
+    Controllers::updateBlogPage(cgi).render();
     return EXIT_SUCCESS;
 }

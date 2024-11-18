@@ -4,6 +4,7 @@
 #include <cgicc/Cgicc.h>
 #include "../../Controllers/Blog/blog.h"
 
+// /blogPost.cgi
 int main()
 {
     auto cgi = std::make_shared<cgicc::Cgicc>();

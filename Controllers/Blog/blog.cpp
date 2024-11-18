@@ -1,6 +1,7 @@
 #include "blog.h"
 #include "../../Views/sections/blogs/blogs.view.h"
 #include "../../Views/sections/blogs/blog.view.h"
+#include "../../Views/sections/blogs/update_blog.view.h"
 #include "../../Views/sections/blogs/create_blog.view.h"
 #include "../../Views/redirect.h"
 #include "../../Helpers/Database/Blogs/blogs.h"
@@ -176,6 +177,62 @@ namespace Controllers
         }
 
         return Views::CreateBlog(cgi);
+    }
+
+    Views::View updateBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        Logger::logInfo("Called updateBlogPage");
+
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
+        {
+            // Need to be logged in
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
+        }
+
+        // Get the path blog /updateBlog.cgi/{blog_number}
+        std::string path = cgi->getEnvironment().getPathInfo();
+        std::optional<int> blogNumber = Request::getPathNumber(path);
+        if (!blogNumber.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Invalid blog path parameter integer");
+        }
+
+        // Get the blog
+        std::optional<Database::Requests::BlogModel> blog;
+        try
+        {
+            blog = Database::viewBlog(blogNumber.value());
+            
+            if (!blog.has_value())
+            {
+                Logger::logWarning("Blog not found " + std::to_string(blogNumber.value()));
+
+                return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                    .setNotification(Views::NotificationType::WARNING, "Blog not found");
+            }
+        }
+        catch (sql::SQLException &e)
+        {
+            Logger::logCritical("Cannot load blog " + std::string(e.what()));
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Cannot load the blog specified");
+        }
+        
+        // Need to be the owner of the blog to edit it
+        if (userInfo.value().id != blog.value().userId)
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "You are not the owner of this blog");
+        }
+
+        return Views::UpdateBlog(cgi, blog.value());
+    }
+
+    Views::View updateBlogPagePut(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        Logger::logInfo("Called updateBlogPagePut");
     }
 
     Views::View postBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)

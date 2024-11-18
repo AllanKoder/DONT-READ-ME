@@ -12,14 +12,22 @@ namespace Controllers
     {
         try
         {
-            // Create a user
-            auto user = Database::Requests::CreateUserRequest(
+            // Create user1
+            auto user1 = Database::Requests::CreateUserRequest(
                 "user",
                 "john.lennon@apple.com",
                 "password",
                 "user");
 
-            Database::createUser(user);
+            // Create user2
+            auto user2 = Database::Requests::CreateUserRequest(
+                "user32",
+                "john112@apple.com",
+                "password1",
+                "user");
+
+            Database::createUser(user1);
+            Database::createUser(user2);
 
             Logger::logInfo("Successfully Seeded!");
         }

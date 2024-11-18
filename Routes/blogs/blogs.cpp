@@ -4,6 +4,7 @@
 #include <cgicc/Cgicc.h>
 #include "../../Controllers/Blog/blog.h"
 
+// /blogs.cgi
 int main()
 {
     // Output content from the login.view.h file
