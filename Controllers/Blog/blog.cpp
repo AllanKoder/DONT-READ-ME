@@ -115,12 +115,12 @@ namespace Controllers
         catch (const sql::SQLException &e)
         {
             Logger::logWarning("Failed to upvote blog " + std::string(e.what()));
-            return Views::Redirect(cgi, "cgi-bin/blogs.cgi/")
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi/")
                 .setNotification(Views::NotificationType::WARNING, "Failed to upvote");
         }
 
         Logger::logInfo("Upvoted the blog, rendering a redirect!");
-        return Views::Redirect(cgi, "cgi-bin/blogs.cgi/")
+        return Views::Redirect(cgi, "/cgi-bin/blog.cgi/" + std::to_string(blogNumber.value()))
             .setNotification(Views::NotificationType::SUCCESS, "Upvoted Blog!");
     }
 
@@ -156,12 +156,13 @@ namespace Controllers
         }
         catch (const sql::SQLException &e)
         {
-            Logger::logWarning("Failed to upvote blog " + std::string(e.what()));
-            return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value())
+            Logger::logWarning("Failed to downvote blog " + std::string(e.what()));
+            return Views::Redirect(cgi, "/cgi-bin/blog.cgi/" + blogNumber.value())
                 .setNotification(Views::NotificationType::WARNING, "Failed to downvote");
         }
 
-        return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value());
+        return Views::Redirect(cgi, "/cgi-bin/blog.cgi/" + std::to_string(blogNumber.value()))
+            .setNotification(Views::NotificationType::SUCCESS, "Downvoted Blog!");
     }
 
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)

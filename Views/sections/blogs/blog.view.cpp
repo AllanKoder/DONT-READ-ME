@@ -20,7 +20,8 @@ namespace Views
         // Upvote
         bodyOutput += "<div class='flex items-center'>\n";
         bodyOutput += "    <div class='flex flex-row items-stretch border border-gray-300 rounded-md overflow-hidden h-6 mb-4'>\n";
-        bodyOutput += "        <form action='/cgi-bin/upvoteBlog.cgi/" + std::to_string(post.id) + "' method='POST' class='h-full'>\n";
+        bodyOutput += "        <form hx-post='/cgi-bin/upvoteBlog.cgi/" + std::to_string(post.id) + "' \
+                                hx-target='#upvotes-counter' hx-select='#upvotes-counter' hx-swap='outerHTML' class='h-full'>\n";
         bodyOutput +=             CsrfToken(cgi).Render();
         bodyOutput += "            <input type='hidden' name='post_id' value='" + std::to_string(post.id) + "' />\n";
         bodyOutput += "            <button type='submit' class='bg-gray-100 hover:bg-gray-200 transition h-full px-1 text-gray-600 flex items-center justify-center'>\n";
@@ -29,8 +30,12 @@ namespace Views
         bodyOutput += "                </svg>\n";
         bodyOutput += "            </button>\n";
         bodyOutput += "        </form>\n";
-        bodyOutput += "        <div class='px-3 flex items-center justify-center bg-white text-center min-w-[2rem]'>" + std::to_string(post.upvotes) + "</div>\n";
-        bodyOutput += "        <form action='/cgi-bin/downvoteBlog.cgi/" + std::to_string(post.id) + "' method='POST' class='h-full'>\n";
+
+        // Votes
+        bodyOutput += "        <div id='upvotes-counter' class='px-3 flex items-center justify-center bg-white text-center min-w-[2rem]'>" + std::to_string(post.upvotes) + "</div>\n";
+        
+        bodyOutput += "        <form hx-post='/cgi-bin/downvoteBlog.cgi/" + std::to_string(post.id) + "' \
+                                hx-target='#upvotes-counter' hx-select='#upvotes-counter' hx-swap='outerHTML' class='h-full'>\n";
         bodyOutput +=             CsrfToken(cgi).Render();
         bodyOutput += "            <input type='hidden' name='post_id' value='" + std::to_string(post.id) + "' />\n";
         bodyOutput += "            <button type='submit' class='bg-gray-100 hover:bg-gray-200 transition h-full px-1 text-gray-600 flex items-center justify-center'>\n";
