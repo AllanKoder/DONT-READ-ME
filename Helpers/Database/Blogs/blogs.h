@@ -14,6 +14,7 @@ namespace Database
     void upvoteBlog(int id);
     void downvoteBlog(int id);
     void createBlog(const Requests::BlogPost &post);
+    void updateBlog(const Requests::BlogUpdatePost &post);
 }
 
 #endif

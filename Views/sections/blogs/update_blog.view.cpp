@@ -16,7 +16,7 @@ namespace Views
         bodyOutput += "<div class='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>\n";
         
         // Form for updating a blog
-        bodyOutput += "    <form action='/cgi-bin/updateBlog.cgi/" + std::to_string(post.id) + "' method='POST' class='space-y-4'>\n";
+        bodyOutput += "    <form action='/cgi-bin/updateBlogPost.cgi/" + std::to_string(post.id) + "' method='POST' class='space-y-4'>\n";
         bodyOutput += "        <label for='title' class='block text-lg font-medium text-gray-700'>Title</label>\n";
         bodyOutput += "        <input type='text' name='title' id='title' value='" + StringHelpers::htmlSpecialChars(post.title) + "' class='border rounded-md p-2 w-full' required />\n";
 

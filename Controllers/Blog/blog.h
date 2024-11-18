@@ -12,7 +12,7 @@ namespace Controllers
     Views::View downvoteBlog(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View updateBlogPage(std::shared_ptr<cgicc::Cgicc> cgi);
-    Views::View updateBlogPagePut(std::shared_ptr<cgicc::Cgicc> cgi);
+    Views::View updateBlogPost(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View postBlogPage(std::shared_ptr<cgicc::Cgicc> cgi);
 }
 

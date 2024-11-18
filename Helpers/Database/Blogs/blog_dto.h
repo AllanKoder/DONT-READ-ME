@@ -50,6 +50,20 @@ namespace Database::Requests
         int userId;
     };
 
+    class BlogUpdatePost
+    {
+    public:
+        BlogUpdatePost(
+            std::string title,
+            std::string content,
+            int id) : title(std::move(title)),
+                          content(std::move(content)),
+                          id(id) {}
+
+        std::string title;
+        std::string content;
+        int id;
+    };
 }
 
 #endif

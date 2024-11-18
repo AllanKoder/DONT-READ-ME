@@ -148,4 +148,25 @@ namespace Database
 
         connection->close(); 
     }
+
+    void updateBlog(const Requests::BlogUpdatePost &post)
+    {
+        auto connection = Database::GetConnection();
+
+        // Prepare the UPDATE statement
+        std::unique_ptr<sql::PreparedStatement> updateStatement(
+            connection->prepareStatement(
+                "UPDATE blogs SET title = ?, content = ? WHERE id = ?"
+            )
+        );
+
+        // Set the parameters
+        updateStatement->setString(1, post.title);
+        updateStatement->setString(2, post.content);
+        updateStatement->setInt(3, post.id);
+
+        updateStatement->executeUpdate();
+
+        connection->close();
+    }
 }

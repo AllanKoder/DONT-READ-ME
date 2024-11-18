@@ -204,7 +204,7 @@ namespace Controllers
         try
         {
             blog = Database::viewBlog(blogNumber.value());
-            
+
             if (!blog.has_value())
             {
                 Logger::logWarning("Blog not found " + std::to_string(blogNumber.value()));
@@ -219,7 +219,7 @@ namespace Controllers
             return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
                 .setNotification(Views::NotificationType::WARNING, "Cannot load the blog specified");
         }
-        
+
         // Need to be the owner of the blog to edit it
         if (userInfo.value().id != blog.value().userId)
         {
@@ -230,9 +230,55 @@ namespace Controllers
         return Views::UpdateBlog(cgi, blog.value());
     }
 
-    Views::View updateBlogPagePut(std::shared_ptr<cgicc::Cgicc> cgi)
+    Views::View updateBlogPost(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        Logger::logInfo("Called updateBlogPagePut");
+        Logger::logInfo("Called updateBlogPost");
+
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (!userInfo.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Need to be logged in to update blogs!");
+        }
+
+        // Get the path blog /updateBlog.cgi/{blog_number}
+        std::string path = cgi->getEnvironment().getPathInfo();
+        std::optional<int> blogId = Request::getPathNumber(path);
+        if (!blogId.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Invalid blog path parameter integer");
+        }
+
+        // Get form data
+        std::string title = cgi->getElement("title")->getValue();
+        std::string content = cgi->getElement("content")->getValue();
+
+        try
+        {
+            // Check if the user is the owner of the blog
+            auto blog = Database::viewBlog(blogId.value());
+            if (!blog.has_value() || blog.value().userId != userInfo.value().id)
+            {
+                return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                    .setNotification(Views::NotificationType::WARNING, "You are not authorized to edit this blog");
+            }
+
+            // Create a BlogUpdatePost object
+            Database::Requests::BlogUpdatePost updatePost(title, content, blogId.value());
+
+            // Call the updateBlog function
+            Database::updateBlog(updatePost);
+
+            return Views::Redirect(cgi, "/cgi-bin/blog.cgi/" + std::to_string(blogId.value()))
+                .setNotification(Views::NotificationType::SUCCESS, "Blog updated successfully");
+        }
+        catch (const std::exception &e)
+        {
+            Logger::logCritical("Error updating blog: " + std::string(e.what()));
+            return Views::Redirect(cgi, "/cgi-bin/updateBlog.cgi/" + std::to_string(blogId.value()))
+                .setNotification(Views::NotificationType::WARNING, "Failed to update blog: " + std::string(e.what()));
+        }
     }
 
     Views::View postBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
