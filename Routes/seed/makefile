@@ -14,6 +14,7 @@ SOURCES = 	seed.cpp \
 			../../Views/views.cpp \
 			../../Views/sections/seed/seed.view.cpp \
 			../../Views/components/header.comp.cpp \
+			../../Views/components/csrf_token.comp.cpp \
 			../../Helpers/Database/db_connection.cpp \
 			../../Helpers/Cryptography/crypto.cpp \
 			../../Helpers/Database/Users/users.cpp \

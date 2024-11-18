@@ -6,6 +6,43 @@
 
 namespace Database
 {
+    void upvoteBlog(int id)
+    {
+        auto connection = Database::GetConnection();
+
+        // Prepare the UPDATE statement
+        std::unique_ptr<sql::PreparedStatement> statement(
+            connection->prepareStatement("UPDATE blogs SET upvotes = upvotes + 1 WHERE id = ?")
+        );
+
+        // Set the blog ID parameter
+        statement->setInt(1, id);
+
+        // Execute the update
+        statement->executeUpdate();
+    
+
+        connection->close();
+    }
+
+    void downvoteBlog(int id)
+    {
+        auto connection = Database::GetConnection();
+
+        // Prepare the UPDATE statement
+        std::unique_ptr<sql::PreparedStatement> statement(
+            connection->prepareStatement("UPDATE blogs SET upvotes = upvotes - 1 WHERE id = ?")
+        );
+
+        // Set the blog ID parameter
+        statement->setInt(1, id);
+
+        // Execute the update
+        statement->executeUpdate();
+
+        connection->close();
+    }
+    
     std::vector<Requests::BlogModel> viewBlogs(const std::string& query)
     {
         auto connection = Database::GetConnection();

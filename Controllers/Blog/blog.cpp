@@ -47,6 +47,7 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
         }
 
+        // Get the path blog /blog/{blog_number}
         std::string path = cgi->getEnvironment().getPathInfo();
         std::optional<int> blogNumber = Request::getPathNumber(path);
         if (!blogNumber.has_value())
@@ -73,7 +74,87 @@ namespace Controllers
             Logger::logCritical("Cannot load blog " + std::string(e.what()));
             return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
                 .setNotification(Views::NotificationType::WARNING, "Cannot load the blog specified");
-        } 
+        }
+    }
+
+    Views::View upvoteBlog(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
+        {
+            // Need to be logged in
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Need to be logged in to upvote blogs!");
+        }
+
+        // Check CSRF token
+        if (!Session::isValidCsrfToken(cgi))
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "You almost got hacked! someone tried to csrf you!");
+        }
+
+        // Get the path blog /blog/{blog_number}
+        std::string path = cgi->getEnvironment().getPathInfo();
+        std::optional<int> blogNumber = Request::getPathNumber(path);
+        if (!blogNumber.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Could not upvote: Invalid blog path parameter integer");
+        }
+
+        try
+        {
+            Database::upvoteBlog(blogNumber.value());
+        }
+        catch (const sql::SQLException &e)
+        {
+            Logger::logWarning("Failed to upvote blog " + std::string(e.what()));
+            return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value())
+                .setNotification(Views::NotificationType::WARNING, "Failed to upvote");
+        }
+
+        return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value());
+    }
+
+    Views::View downvoteBlog(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
+        if (userInfo.has_value() == false)
+        {
+            // Need to be logged in
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Need to be logged in to downvote blogs!");
+        }
+
+        // Check CSRF token
+        if (!Session::isValidCsrfToken(cgi))
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "You almost got hacked! someone tried to csrf you!");
+        }
+
+        // Get the path blog /blog/{blog_number}
+        std::string path = cgi->getEnvironment().getPathInfo();
+        std::optional<int> blogNumber = Request::getPathNumber(path);
+        if (!blogNumber.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Could not upvote: Invalid blog path parameter integer");
+        }
+
+        try
+        {
+            Database::downvoteBlog(blogNumber.value());
+        }
+        catch (const sql::SQLException &e)
+        {
+            Logger::logWarning("Failed to upvote blog " + std::string(e.what()));
+            return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value())
+                .setNotification(Views::NotificationType::WARNING, "Failed to downvote");
+        }
+
+        return Views::Redirect(cgi, "cgi-bin/blog.cgi/" + blogNumber.value());
     }
 
     Views::View createBlogPage(std::shared_ptr<cgicc::Cgicc> cgi)
@@ -114,8 +195,8 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
         }
 
-        std::string csrfToken = StringHelpers::urlDecode(postData.at("csrf_token"));
-        if (!Session::isValidCsrfToken(cgi, csrfToken))
+        // CSRF Token
+        if (!Session::isValidCsrfToken(cgi))
         {
             return Views::Redirect(cgi, "/cgi-bin/createBlog.cgi")
                 .setNotification(Views::NotificationType::WARNING, "You almost got hacked! someone tried to csrf you!");
@@ -126,7 +207,6 @@ namespace Controllers
         std::string dtoTitle = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("title")));
 
         Database::Requests::BlogPost blogPost(dtoTitle, dtoContent, dtoUserId);
-        
 
         // Create the blog under the user
         try

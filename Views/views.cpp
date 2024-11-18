@@ -118,7 +118,7 @@ namespace Views
         std::cout << "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n";
 
         // Header component
-        std::cout << Views::Header(cgi);
+        std::cout << Views::Header(cgi).Render();
 
         // Initialize Notyf
         std::cout << "<script>\n";

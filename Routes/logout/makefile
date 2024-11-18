@@ -12,6 +12,7 @@ SOURCES = 	logout.cpp \
 			../../Views/sections/login/login.view.cpp \
 			../../Views/views.cpp \
 			../../Views/components/header.comp.cpp \
+			../../Views/components/csrf_token.comp.cpp \
 			../../Logger/logger.cpp \
 			../../Views/redirect.cpp \
 			../../Helpers/Database/db_connection.cpp \

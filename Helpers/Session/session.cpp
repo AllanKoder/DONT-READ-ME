@@ -3,6 +3,8 @@
 #include "../../env.h"
 #include "../../config.h"
 #include "../Cryptography/crypto.h"
+#include "../Request/request.h"
+#include "../String/string_helpers.h"
 #include "../Database/db_connection.h"
 #include <crypto++/rdrand.h>
 #include <cryptopp/osrng.h>
@@ -270,15 +272,27 @@ namespace Session
         return Crypto::hash(token.value(), CRSF_KEY);
     }
 
-    bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string givenToken)
+    bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        // Hash it, using the Crypto::hash
+        // Get the session token
         std::optional<std::string> token = getSessionToken(cgi);
         if (!token.has_value())
         {
             return false;
         }
 
-        return Crypto::hash(token.value(), CRSF_KEY) == givenToken;
+        // Compare the user session token to the one in the post data
+        cgicc::CgiEnvironment env = cgi->getEnvironment();
+        std::string requestBody = env.getPostData();
+        std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
+        // Check if the user has filled the CSRF token for posting
+        if (postData.count("csrf_token") == 0)
+        {
+            Logger::logWarning("Invalid parameters for creating blog");
+            return false; 
+        }
+        // Is their sent token valid?
+        std::string csrfToken = StringHelpers::urlDecode(postData.at("csrf_token"));
+        return Crypto::hash(token.value(), CRSF_KEY) == csrfToken;
     }
 }

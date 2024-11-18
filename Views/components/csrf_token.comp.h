@@ -1,5 +1,5 @@
-#ifndef HEADER_COMPONENT_H
-#define HEADER_COMPONENT_H
+#ifndef CSRF_TOKEN_COMPONENT_H
+#define CSRF_TOKEN_COMPONENT_H
 
 #include "../views.h" 
 #include "cgicc/Cgicc.h"
@@ -7,15 +7,15 @@
 
 namespace Views
 {
-    class Header
+    class CsrfToken
     {
     private:
         std::shared_ptr<cgicc::Cgicc> cgi;
+
     public:
-        Header(std::shared_ptr<cgicc::Cgicc> cgi);
+        CsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);
         std::string Render() const;
     };
-
 }
 
 #endif

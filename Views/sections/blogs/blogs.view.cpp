@@ -1,4 +1,5 @@
 #include "blogs.view.h"
+#include "../../../Helpers/String/string_helpers.h"
 #include <sstream>
 #include <vector>
 
@@ -35,7 +36,7 @@ namespace Views
         for (const auto& post : posts) {
             bodyOutput += "                <tr>\n";
             bodyOutput += "                    <td class='border px-4 py-2'>" + std::to_string(post.upvotes) + "</td>\n";
-            bodyOutput += "                    <td class='border px-4 py-2'>" + post.username + "</td>\n";
+            bodyOutput += "                    <td class='border px-4 py-2'>" + StringHelpers::htmlSpecialChars(post.username) + "</td>\n";
             bodyOutput += "                    <td class='border px-4 py-2'>\n";
             bodyOutput += "                        <a href='/cgi-bin/blog.cgi/" + std::to_string(post.id) + "' class='text-blue-500 hover:underline'>" + post.title + "</a>\n";
             bodyOutput += "                    </td>\n";

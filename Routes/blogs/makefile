@@ -11,6 +11,7 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 SOURCES = 	blogs.cpp \
 			../../Views/views.cpp \
 			../../Views/components/header.comp.cpp \
+			../../Views/components/csrf_token.comp.cpp \
 			../../Views/sections/blogs/blogs.view.cpp \
 			../../Views/sections/blogs/blog.view.cpp \
 			../../Views/sections/blogs/create_blog.view.cpp \

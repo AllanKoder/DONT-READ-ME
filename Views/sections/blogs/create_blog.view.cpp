@@ -1,5 +1,6 @@
 #include "create_blog.view.h"
 #include "../../../Helpers/Session/session.h"
+#include "../../components/csrf_token.comp.h"
 #include <sstream>
 #include <vector>
 
@@ -21,11 +22,8 @@ namespace Views
         bodyOutput += "        <label for='content' class='block text-lg font-medium text-gray-700'>Content</label>\n";
         bodyOutput += "        <textarea name='content' id='content' placeholder='Enter blog content...' class='border rounded-md p-2 w-full mb-4' rows='5' required></textarea>\n";
 
-        // Generate and retrieve CSRF token
-        std::string csrfToken = Session::getCsrfToken(cgi);
-
-        // Hidden input field for CSRF token
-        bodyOutput += "        <input type='hidden' name='csrf_token' value='" + csrfToken + "' />\n";
+        // CSRF Token
+        bodyOutput +=           CsrfToken(cgi).Render();
 
         bodyOutput += "        <button type='submit' class='bg-blue-500 text-white rounded-md p-2'>Submit</button>\n"; // Submit button
         bodyOutput += "    </form>\n";
