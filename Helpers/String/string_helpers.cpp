@@ -74,4 +74,33 @@ namespace StringHelpers
         
         return result;
     }
+
+    // replace strings with lookalikes
+    std::string sanitizeString(const std::string& src) {
+        std::string result;
+
+        for (char c : src) {
+            switch (c) {
+                case '&':
+                    result += "🙲"; // Ampersand
+                    break;
+                case '\"':
+                    result += "‘"; // Double quote 
+                    break;
+                case '\'':
+                    result += "‘"; // Single quote
+                    break;
+                case '<':
+                    result += "＜"; // Less than
+                    break;
+                case '>':
+                    result += "＞;"; // Greater than
+                    break;
+                default:
+                    result += c; // Append the character as is
+            }
+        }
+        
+        return result;
+    }
 }

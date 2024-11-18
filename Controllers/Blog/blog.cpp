@@ -213,8 +213,8 @@ namespace Controllers
         }
 
         int dtoUserId = userInfo.value().id;
-        std::string dtoContent = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("content")));
-        std::string dtoTitle = StringHelpers::htmlSpecialChars(StringHelpers::urlDecode(postData.at("title")));
+        std::string dtoContent = StringHelpers::sanitizeString(StringHelpers::urlDecode(postData.at("content")));
+        std::string dtoTitle = StringHelpers::sanitizeString(StringHelpers::urlDecode(postData.at("title")));
 
         Database::Requests::BlogPost blogPost(dtoTitle, dtoContent, dtoUserId);
 
