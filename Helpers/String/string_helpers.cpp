@@ -85,7 +85,7 @@ namespace StringHelpers
                     result += "🙲"; // Ampersand
                     break;
                 case '\"':
-                    result += "‘"; // Double quote 
+                    result += "“"; // Double quote 
                     break;
                 case '\'':
                     result += "‘"; // Single quote

@@ -16,12 +16,14 @@ namespace Database::Requests
             std::string content,
             int upvotes,
             std::string dateCreated,
-            std::string title) : id(id),
-                                 username(std::move(username)),
-                                 content(std::move(content)),
-                                 upvotes(upvotes),
-                                 dateCreated(std::move(dateCreated)),
-                                 title(std::move(title)) {}
+            std::string title,
+            int userId) : id(id),
+                          username(std::move(username)),
+                          content(std::move(content)),
+                          upvotes(upvotes),
+                          dateCreated(std::move(dateCreated)),
+                          title(std::move(title)),
+                          userId(userId) {}
 
         // Member variables
         int id;
@@ -30,6 +32,7 @@ namespace Database::Requests
         int upvotes;
         std::string dateCreated;
         std::string title;
+        int userId;
     };
 
     class BlogPost

@@ -53,7 +53,7 @@ namespace Database
         // Prepare the SELECT statement
         std::unique_ptr<sql::PreparedStatement> statement(
             connection->prepareStatement(
-                "SELECT u.username, b.id, b.upvotes, b.created_on, b.title, b.content "
+                "SELECT u.username, u.id as userId, b.id, b.upvotes, b.created_on, b.title, b.content "
                 "FROM blogs b "
                 "JOIN users u ON b.user_id = u.id "
                 "WHERE u.username LIKE ? OR b.title LIKE ?"
@@ -79,7 +79,8 @@ namespace Database
                 resultSet->getString("content").c_str(), 
                 resultSet->getInt("upvotes"),
                 resultSet->getString("created_on").c_str(),
-                resultSet->getString("title").c_str()      
+                resultSet->getString("title").c_str(),
+                resultSet->getInt("userId")
             );
 
             posts.push_back(post);
@@ -95,7 +96,7 @@ namespace Database
         // Prepare the SELECT statement
         std::unique_ptr<sql::PreparedStatement> statement(
             connection->prepareStatement(
-                "SELECT u.username, b.id, b.upvotes, b.created_on, b.title, b.content "
+                "SELECT u.username, u.id as userId, b.id, b.upvotes, b.created_on, b.title, b.content "
                 "FROM blogs b "
                 "JOIN users u ON b.user_id = u.id "
                 "WHERE b.id = ?"
@@ -117,7 +118,8 @@ namespace Database
                 resultSet->getString("content").c_str(),
                 resultSet->getInt("upvotes"),
                 resultSet->getString("created_on").c_str(),
-                resultSet->getString("title").c_str()
+                resultSet->getString("title").c_str(),
+                resultSet->getInt("userId")
             );
 
             connection->close(); 
