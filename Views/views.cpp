@@ -80,7 +80,7 @@ namespace Views
         // Create a notification string in the format "Type|Message"
         std::string notificationQuery;
         notificationQuery = (type == NotificationType::SUCCESS ? "Success" : "Warning") + std::string("|") + message;
-
+        
         // Append to redirect URL as a query parameter
         if (redirectUrl.find('?') != std::string::npos)
         {

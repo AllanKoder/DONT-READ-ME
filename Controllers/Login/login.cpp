@@ -30,24 +30,16 @@ namespace Controllers
                 .setNotification(Views::NotificationType::SUCCESS, "Already Logged in!");
         }
 
-        // Get the request body
-        cgicc::CgiEnvironment env = cgi->getEnvironment();
-        std::string requestBody = env.getPostData();
+        // Get the post data
+        std::string email = cgi->getElement("email")->getValue();
+        std::string password = cgi->getElement("password")->getValue();
 
-        Logger::logInfo("Got Request body. It is the following: " + requestBody); 
-        std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
-
-        // Check if the user has filled the parameters
-        if (postData.count("email") == 0 || postData.count("password") == 0)
+        if (email.empty() || password.empty())
         {
             // Invalid parameters, notify and redirect back to login
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
                 .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
         }
-
-        // Get the post data
-        std::string email = StringHelpers::urlDecode(postData.at("email"));
-        std::string password = StringHelpers::urlDecode(postData.at("password"));
 
         Logger::logInfo("Logging in with email: " + email + " password: " + password); 
         std::optional<std::string> token = Session::login(email, password);

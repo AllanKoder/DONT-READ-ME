@@ -292,15 +292,11 @@ namespace Controllers
         }
 
         // Check the forms, if the values are correct
-
-        cgicc::CgiEnvironment env = cgi->getEnvironment();
-        std::string requestBody = env.getPostData();
-
-        Logger::logInfo("Got Request body. It is the following: " + requestBody);
-        std::unordered_map<std::string, std::string> postData = Request::getPostDataToMap(requestBody);
+        std::string dtoTitle = StringHelpers::sanitizeString(cgi->getElement("title")->getValue());
+        std::string dtoContent = StringHelpers::sanitizeString(cgi->getElement("content")->getValue());
 
         // Check if the user has filled the parameters for posting
-        if (postData.count("title") == 0 || postData.count("content") == 0 || postData.count("csrf_token") == 0)
+        if (dtoTitle.empty() || dtoContent.empty())
         {
             Logger::logWarning("Invalid parameters for creating blog");
             // Invalid parameters, notify and redirect back to post
@@ -316,8 +312,6 @@ namespace Controllers
         }
 
         int dtoUserId = userInfo.value().id;
-        std::string dtoContent = StringHelpers::sanitizeString(StringHelpers::urlDecode(postData.at("content")));
-        std::string dtoTitle = StringHelpers::sanitizeString(StringHelpers::urlDecode(postData.at("title")));
 
         Database::Requests::BlogPost blogPost(dtoTitle, dtoContent, dtoUserId);
 
