@@ -35,6 +35,9 @@ namespace Session
     // check if anti-csrf token is valid
     bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);
 
+    // check if the password follows the policy
+    bool isValidPassword(std::string password);
+
     PrivilegeLevel stringToPrivilegeLevel(const std::string& levelStr);
 
     std::optional<std::string> getSessionToken(std::shared_ptr<cgicc::Cgicc> cgi);

@@ -26,9 +26,6 @@ namespace Views
         // CSRF Token
         bodyOutput += CsrfToken(cgi).Render();
 
-        // Hidden input for the post ID
-        bodyOutput += "        <input type='hidden' name='post_id' value='" + std::to_string(post.id) + "' />\n";
-
         bodyOutput += "        <button type='submit' class='bg-blue-500 text-white rounded-md p-2'>Update</button>\n";
         bodyOutput += "    </form>\n";
 

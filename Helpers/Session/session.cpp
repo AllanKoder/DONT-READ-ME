@@ -58,6 +58,7 @@ namespace Session
 
         // Check if the token has the correct length
         if (token.value().length() != SESSION_TOKEN_SIZE) {
+            Logger::logWarning("token is invalid size");
             return std::nullopt;
         }
 
@@ -110,6 +111,7 @@ namespace Session
             return std::nullopt; // Return false on exception
         }
 
+        Logger::logWarning("No token found for cookie");
         connection->close();
         return std::nullopt; // No Cookie found
     }
@@ -270,6 +272,12 @@ namespace Session
         }
  
         return Crypto::hash(token.value(), CRSF_KEY);
+    }
+
+    bool isValidPassword(std::string password)
+    {
+        // simple policy, just check length
+        return password.length() >= 6;
     }
 
     bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)

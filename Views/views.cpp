@@ -25,12 +25,13 @@ namespace Views
         if (!redirectUrl.empty())
         {
             // There is a redirect, set it as the header
-            outputHeader << cgicc::HTTPRedirectHeader(redirectUrl) << "\n";
+            outputHeader << "Status: 302 Found\n";
+            outputHeader << "Location: " << redirectUrl << "\n";
         }
         else
         {
             // If there's no redirect, proceed with the normal header
-            outputHeader << cgicc::HTTPHTMLHeader() << "\n";
+            outputHeader << "Content-Type: text/html\n";
         }
 
         // Add custom headers
@@ -98,7 +99,6 @@ namespace Views
         // Output HTTP headers
         std::cout << getHeader() << "\n";
 
-        // If not a redirect
         if (redirectUrl.empty())
         {
             // Start HTML document
