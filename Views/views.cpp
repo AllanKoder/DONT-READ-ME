@@ -25,13 +25,12 @@ namespace Views
         if (!redirectUrl.empty())
         {
             // There is a redirect, set it as the header
-            outputHeader << "Status: 302 Found\n";
-            outputHeader << "Location: " << redirectUrl << "\n";
+            outputHeader << cgicc::HTTPRedirectHeader(redirectUrl) << "\n";
         }
         else
         {
             // If there's no redirect, proceed with the normal header
-            outputHeader << "Content-Type: text/html\n";
+            outputHeader << cgicc::HTTPHTMLHeader() << "\n";
         }
 
         // Add custom headers
@@ -80,7 +79,7 @@ namespace Views
         // Create a notification string in the format "Type|Message"
         std::string notificationQuery;
         notificationQuery = (type == NotificationType::SUCCESS ? "Success" : "Warning") + std::string("|") + message;
-        
+
         // Append to redirect URL as a query parameter
         if (redirectUrl.find('?') != std::string::npos)
         {
@@ -99,59 +98,63 @@ namespace Views
         // Output HTTP headers
         std::cout << getHeader() << "\n";
 
-        // Start HTML document
-        std::cout << "<html lang=\"en\" class=\"h-full\">\n";
+        // If not a redirect
+        if (redirectUrl.empty())
+        {
+            // Start HTML document
+            std::cout << "<html lang=\"en\" class=\"h-full\">\n";
 
-        // Start the <head>
-        std::cout << "<head>\n";
-        std::cout << "<meta charset=\"UTF-8\">\n";
-        std::cout << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-        std::cout << "<title>" << title << "</title>\n";
-        std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
-        std::cout << "<script src=\"https://unpkg.com/htmx.org@2.0.3\"></script>\n";
+            // Start the <head>
+            std::cout << "<head>\n";
+            std::cout << "<meta charset=\"UTF-8\">\n";
+            std::cout << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+            std::cout << "<title>" << title << "</title>\n";
+            std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
+            std::cout << "<script src=\"https://unpkg.com/htmx.org@2.0.3\"></script>\n";
 
-        std::cout << "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css\">\n";
-        std::cout << "</head>\n";
+            std::cout << "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css\">\n";
+            std::cout << "</head>\n";
 
-        // Start the body
-        std::cout << "<body class=\"h-full bg-white\">\n";
-        std::cout << "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n";
+            // Start the body
+            std::cout << "<body class=\"h-full bg-white\">\n";
+            std::cout << "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n";
 
-        // Header component
-        std::cout << Views::Header(cgi).Render();
+            // Header component
+            std::cout << Views::Header(cgi).Render();
 
-        // Initialize Notyf
-        std::cout << "<script>\n";
-        std::cout << "var notyf = new Notyf({\
+            // Initialize Notyf
+            std::cout << "<script>\n";
+            std::cout << "var notyf = new Notyf({\
             position: {\
                 x: 'center',\
                 y: 'top',\
             }});\n";
 
-        getNotifications(); // Call to get notifications
+            getNotifications(); // Call to get notifications
 
-        std::cout << "</script>\n";
+            std::cout << "</script>\n";
 
-        // Main content
-        std::cout << "<main class=\"flex items-center justify-center h-5/6\">\n";
-        std::cout << "  <div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">\n";
-        std::cout << "    <div class=\"px-4 py-6 sm:px-0\">\n";
+            // Main content
+            std::cout << "<main class=\"flex items-center justify-center h-5/6\">\n";
+            std::cout << "  <div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">\n";
+            std::cout << "    <div class=\"px-4 py-6 sm:px-0\">\n";
 
-        // Updated card styling
-        std::cout << "      <div id=\"content-body\" class=\"border rounded-lg min-h-[200px] min-w-[300px] p-6 shadow-lg bg-white flex items-center justify-center\">\n";
+            // Updated card styling
+            std::cout << "      <div id=\"content-body\" class=\"border rounded-lg min-h-[200px] min-w-[300px] p-6 shadow-lg bg-white flex items-center justify-center\">\n";
 
-        // Body content
-        std::cout << body;
+            // Body content
+            std::cout << body;
 
-        std::cout << "      </div>\n";
+            std::cout << "      </div>\n";
 
-        std::cout << "    </div>\n";
-        std::cout << "  </div>\n";
-        std::cout << "</main>\n";
+            std::cout << "    </div>\n";
+            std::cout << "  </div>\n";
+            std::cout << "</main>\n";
 
-        // End HTML document
-        std::cout << "</body>\n";
-        std::cout << "</html>\n";
+            // End HTML document
+            std::cout << "</body>\n";
+            std::cout << "</html>\n";
+        }
     }
 
     View &View::setRedirect(const std::string &url)
