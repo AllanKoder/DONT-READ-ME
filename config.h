@@ -21,7 +21,10 @@
 // Seconds for use, is a day long, 24 hours * 60 minutes * 60 seconds
 #define TOKEN_EXPIRY_TIME 24*60*60
 
-
+// Logs
 #define LOG_FILE_LOCATION "/var/log/blog_app.log"
+
+// Email
+#define PAYLOAD_TEXT_SIZE 1024
 
 #endif

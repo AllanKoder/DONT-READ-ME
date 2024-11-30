@@ -6,9 +6,6 @@
 #include "../Request/request.h"
 #include "../String/string_helpers.h"
 #include "../Database/db_connection.h"
-#include <crypto++/rdrand.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/hex.h>
 #include <array>
 #include <memory>
 
@@ -154,21 +151,7 @@ namespace Session
             return std::nullopt;
         }
 
-        // Turn the SESSION_TOKEN_SIZE to the the byte length (which is smaller when converted to string again)
-        const std::size_t tokenLength = (int)((SESSION_TOKEN_SIZE)/2);
-
-        // Turning to hex will make the size double
-        std::array<CryptoPP::byte, tokenLength> randomBytes;
-
-        // Use AutoSeededRandomPool for secure random number generation
-        CryptoPP::AutoSeededRandomPool rng;
-        rng.GenerateBlock(randomBytes.data(), randomBytes.size());
-
-        // Convert random bytes to hex string
-        std::string token;
-        CryptoPP::HexEncoder hexEncoder(new CryptoPP::StringSink(token));
-        hexEncoder.Put(randomBytes.data(), randomBytes.size());
-        hexEncoder.MessageEnd();
+        std::string token = Crypto::getRandomToken();
 
         auto connection = Database::GetConnection(); // Get a database connection
         // Create the token in the database

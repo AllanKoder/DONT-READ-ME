@@ -5,7 +5,11 @@
 #include <crypto++/sha.h>
 #include <crypto++/hmac.h>
 #include <crypto++/hex.h>
+#include <crypto++/rdrand.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/hex.h>
 #include "../../env.h"
+#include "../../config.h"
 #include <cstddef>
 
 namespace Crypto
@@ -49,5 +53,26 @@ namespace Crypto
         encoder.MessageEnd();
 
         return hexDigest;
+    }
+    
+    std::string getRandomToken()
+    {
+            // Turn the SESSION_TOKEN_SIZE to the the byte length (which is smaller when converted to string again)
+        const std::size_t tokenLength = (int)((SESSION_TOKEN_SIZE)/2);
+
+        // Turning to hex will make the size double
+        std::array<CryptoPP::byte, tokenLength> randomBytes;
+
+        // Use AutoSeededRandomPool for secure random number generation
+        CryptoPP::AutoSeededRandomPool rng;
+        rng.GenerateBlock(randomBytes.data(), randomBytes.size());
+
+        // Convert random bytes to hex string
+        std::string token;
+        CryptoPP::HexEncoder hexEncoder(new CryptoPP::StringSink(token));
+        hexEncoder.Put(randomBytes.data(), randomBytes.size());
+        hexEncoder.MessageEnd();
+
+        return token;
     }
 }

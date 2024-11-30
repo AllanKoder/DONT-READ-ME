@@ -7,6 +7,7 @@
 namespace Crypto
 {
     std::string hash(const std::string& data, const std::string& salt);
+    std::string getRandomToken();
     std::string hmac(const std::string& data);
 }
 #endif

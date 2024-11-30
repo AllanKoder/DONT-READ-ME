@@ -24,6 +24,7 @@ SOURCES =  test.cpp \
             ../../Controllers/Blog/blog.cpp \
             ../../Logger/logger.cpp \
             ../../Views/redirect.cpp \
+			../../Helpers/Email/email.cpp \
             ../../Helpers/Cryptography/crypto.cpp \
             ../../Helpers/Session/session.cpp \
             ../../Helpers/Request/requests.cpp \
