@@ -10,6 +10,12 @@ namespace Controllers
     Views::View loginPost(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View logoutPost(std::shared_ptr<cgicc::Cgicc> cgi);
     Views::View loginPage(std::shared_ptr<cgicc::Cgicc> cgi);
+
+    // MFA2
+    Views::View emailCodePage(std::shared_ptr<cgicc::Cgicc> cgi);
+    Views::View emailCodePost(std::shared_ptr<cgicc::Cgicc> cgi);
+    Views::View appCodePage(std::shared_ptr<cgicc::Cgicc> cgi);
+    Views::View appCode(std::shared_ptr<cgicc::Cgicc> cgi);
 }
 
 #endif

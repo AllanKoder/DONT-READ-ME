@@ -155,6 +155,7 @@ namespace Views
             std::cout << "</body>\n";
             std::cout << "</html>\n";
         }
+        // TODO: make this print something else in case of redirect
     }
 
     View &View::setRedirect(const std::string &url)

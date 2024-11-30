@@ -4,11 +4,8 @@ CXX = g++
 # Compiler flags
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wreorder -g
 
-# Include directory for CPP-SMTPClient-library
-INCLUDES = -I/usr/local/include/CPP-SMTPClient-library
-
 # Linker flags for libraries
-LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++ -L/usr/local/lib -l:libquickmail.a -lcurl
+LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++ -lcurl
 
 # Source files
 SOURCES =  test.cpp \

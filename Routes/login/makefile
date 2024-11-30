@@ -10,6 +10,7 @@ LDFLAGS = -lmariadbcpp -lcgicc -lcrypto++
 # Source files
 SOURCES = 	login.cpp \
 			../../Views/sections/login/login.view.cpp \
+			../../Views/sections/login/email.view.cpp \
 			../../Views/views.cpp \
 			../../Views/components/header.comp.cpp \
 			../../Views/components/csrf_token.comp.cpp \

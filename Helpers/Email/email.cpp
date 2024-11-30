@@ -13,10 +13,12 @@ struct upload_status {
 };
 
 static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp) {
+    (void) size, (void) nmemb; // silence warnings
+
     struct upload_status *upload_ctx = (struct upload_status *)userp;
     const char *data;
 
-    if (upload_ctx->lines_read >= static_cast<size_t>(sizeof(payload_text) / sizeof(payload_text[0]))) {
+    if (upload_ctx->lines_read >= (int)(sizeof(payload_text) / sizeof(payload_text[0]))) {
         return 0;  // End of payload
     }
 

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../../Logger/logger.h"
 #include "../../Views/sections/login/login.view.h"
+#include "../../Views/sections/login/email.view.h"
 #include "../../Views/redirect.h"
 #include "../../Helpers/Database/Users/users.h"
 #include "../../Helpers/Session/session.h"
@@ -92,5 +93,18 @@ namespace Controllers
         }
 
         return Views::Login(cgi);
+    }
+
+    Views::View emailCodePage(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        if (Session::userInfo(cgi).has_value())
+        {
+            Logger::logInfo("email Code Page: User is already logged in");
+            // Redirect to homepage
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::SUCCESS, "Already Logged in");
+        }
+
+        return Views::Email(cgi);
     }
 }
