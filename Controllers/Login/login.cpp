@@ -108,4 +108,50 @@ namespace Controllers
 
         return Views::Email(cgi);
     }
+
+    Views::View emailCodePost(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        if (Session::userInfo(cgi).has_value())
+        {
+            Logger::logInfo("email Code Page: User is already logged in");
+            // Redirect to homepage
+            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                .setNotification(Views::NotificationType::SUCCESS, "Already Logged in");
+        }
+
+        // Check if their code is valid.
+        // Don't need to worry about CSRF since this is logging in.
+        std::string code = cgi->getElement("code")->getValue();
+        if (code.empty())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/emailCode.cgi")
+                .setNotification(Views::NotificationType::WARNING, "No Code given");
+        }
+
+        std::optional<Session::LoginResult> loginResult = Session::confirmEmailCode(cgi, code);
+        if (!loginResult.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/emailCode.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Email code was not correct");
+        }
+        else
+        {
+            if (loginResult.value().isSessionToken)
+            {
+                // Set the session token
+                std::string sessionCookie = "SESSION_TOKEN=" + loginResult.value().sessionToken + "; HttpOnly ; SameSite=Strict";
+                // Delete the temp session cookie
+                std::string pendingSessionCookie = "PENDING_SESSION_TOKEN=; HttpOnly";
+                return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+                    .setCookie(sessionCookie)
+                    .setCookie(pendingSessionCookie)
+                    .setNotification(Views::NotificationType::SUCCESS, "Login Success! Welcome Back!");
+            }
+            else
+            {
+
+            }
+        }
+
+    }
 }

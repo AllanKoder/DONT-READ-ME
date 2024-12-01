@@ -4,7 +4,6 @@
 int main()
 {
     auto cgi = std::make_shared<cgicc::Cgicc>();
-    // Output content from the login.view.h file
-    Controllers::emailCodePage(cgi).render();
+    Controllers::emailCodePost(cgi).render();
     return EXIT_SUCCESS;
 }

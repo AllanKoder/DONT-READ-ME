@@ -25,14 +25,14 @@ namespace Session
         return USER;
     }
 
-    std::optional<std::string> getSessionToken(std::shared_ptr<cgicc::Cgicc> cgi)
+    std::optional<std::string> getCookieToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string cookieName)
     {
         const std::vector<cgicc::HTTPCookie> cookiesList = cgi->getEnvironment().getCookieList();
         // check if there is token,
-        // Search for the cookie variable "SESSION_TOKEN"
+        // Search for the cookieName
         for (auto cookie : cookiesList)
         {
-            if (cookie.getName() == "SESSION_TOKEN")
+            if (cookie.getName() == cookieName)
             {
                 return cookie.getValue();
             }
@@ -44,7 +44,7 @@ namespace Session
     // Function to retrieve the user ID from the SESSION_TOKEN cookie
     std::optional<UserInfo> userInfo(std::shared_ptr<cgicc::Cgicc> cgi)
     {
-        std::optional<std::string> token = getSessionToken(cgi);
+        std::optional<std::string> token = getCookieToken(cgi, "SESSION_TOKEN");
 
         if (!token.has_value())
         {
@@ -304,7 +304,7 @@ namespace Session
                 Logger::logInfo("user id: " + userId);
                 // Create a pending session token for this user ID
                 // Send an email with the code, and create the pending session token
-            
+
                 // The code the user will input
                 std::string sixCharCode = Crypto::getRandomSixCharCode();
                 // Make the token
@@ -317,13 +317,13 @@ namespace Session
                     message.to = email;
                     message.body = "This is your code: " + sixCharCode;
                     message.subject = "Don't README - Code";
-                    
+
                     Email::sendEmail(message);
 
                     connection->close();
                     // Login successful
                     LoginResult result;
-                    result.isAuth = false;
+                    result.isSessionToken = false;
                     result.pendingSessionToken = token.value();
                     return result;
                 }
@@ -343,10 +343,143 @@ namespace Session
         }
     }
 
+    std::optional<LoginResult> confirmEmailCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string userProvidedCode)
+    {
+        Logger::logInfo("Reached confirmEmailCode() function");
+
+        // check if the user's cookie token is in the database.
+        // Then, check if the code is a match.
+        // Check if if it is expired
+        // If the code is incorrect, then increment attempts, if we surpass the limit ()
+        auto connection = Database::GetConnection(); // Get a database connection
+
+        // Prepare an SQL statement to check if email and password hash match
+        std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
+            "SELECT TIMESTAMPDIFF(SECOND, created_time, CURRENT_TIMESTAMP()) as time_difference, \
+                pt.value, \
+                pt.verification_type, \
+                u.permission_level, \
+                u.id, \
+                pt.attempts \
+                FROM pending_session_tokens pt \
+                JOIN users u ON pt.user_id = u.id \
+                WHERE token = ?"));
+
+        std::optional<std::string> userProvidedToken = getCookieToken(cgi, "PENDING_SESSION_TOKEN");
+        if (!userProvidedToken.has_value())
+        {
+            Logger::logWarning("No provided token");
+        }
+        Logger::logInfo("User provided token: " + userProvidedToken.value());
+
+        selectStatement->setString(1, userProvidedToken.value());
+
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
+
+            // Is a valid token
+            if (res->next())
+            {
+                int timeDifference = res->getInt("time_difference"); // Get user ID from result set
+                std::string value = res->getString("value").c_str();
+                PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
+                int userId = res->getInt("id");
+                int attempts = res->getInt("attempts");
+
+                // Statement to delete the token on either success or fail
+                std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(
+                    "DELETE FROM pending_session_tokens WHERE token = ?"));
+                deleteStatement->setString(1, userProvidedToken.value());
+
+                if (value != userProvidedCode)
+                {
+                    Logger::logWarning("Invalid user code provided");
+
+                    attempts++;
+                    if (attempts >= MAX_CODE_ATTEMPTS)
+                    {
+                        Logger::logWarning("Maximum attempts reached for token: " + userProvidedToken.value());
+                        // Delete the token
+                        deleteStatement->executeUpdate();
+                        Logger::logInfo("Token deleted due to max attempts: " + userProvidedToken.value());
+                        return std::nullopt;
+                    }
+
+                    // Increment the attempts
+                    std::shared_ptr<sql::PreparedStatement> updateStatement(connection->prepareStatement(
+                        "UPDATE pending_session_tokens SET attempts = ? WHERE token = ?"));
+                    updateStatement->setInt(1, attempts);
+                    updateStatement->setString(2, userProvidedToken.value());
+                    updateStatement->executeUpdate();
+
+                    return std::nullopt;
+                }
+
+                if (timeDifference >= PENDING_TOKEN_EXPIRY_TIME)
+                {
+                    Logger::logWarning("Token has exceeded the expiry time");
+                    // Delete expired token
+                    deleteStatement->executeUpdate();
+                    Logger::logInfo("Expired token deleted: " + userProvidedToken.value());
+                    return std::nullopt;
+                }
+
+                Logger::logInfo("Code verified successfully");
+
+                // Delete the token after successful verification
+                deleteStatement->executeUpdate();
+                Logger::logInfo("Token deleted after successful verification: " + userProvidedToken.value());
+
+                // The user has succeeded, the code is valid.
+                // If the privellege level is only user, they are validated now
+                if (level == PrivilegeLevel::USER)
+                {
+                    std::optional<std::string> sessionToken = createSessionToken(userId);
+                    if (!sessionToken.has_value())
+                    {
+                        return std::nullopt;
+                    }
+
+                    LoginResult result;
+                    result.isSessionToken = true;
+                    result.sessionToken = sessionToken.value();
+                    return result;
+                }
+                // the admin needs to do the next step of using the auth app
+                else if (level == PrivilegeLevel::ADMIN)
+                {
+                    std::optional<std::string> pendingSessionToken = createPendingSessionToken(userId, "app");
+                    if (!pendingSessionToken.has_value())
+                    {
+                        return std::nullopt;
+                    }
+
+                    LoginResult result;
+                    result.isSessionToken = false;
+                    result.pendingSessionToken = pendingSessionToken.value();
+                    return result;
+                }
+            }
+
+            Logger::logWarning("Cannot find the session token given");
+            connection->close();
+            return std::nullopt; // Login failed: no matching email/password found
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot confirm the email code: ";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return std::nullopt; // Return false on exception
+        }
+    }
+
     std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)
     {
         // Hash it, using the Crypto::hash
-        std::optional<std::string> token = getSessionToken(cgi);
+        std::optional<std::string> token = getCookieToken(cgi, "SESSION_TOKEN");
         if (!token.has_value())
         {
             return "This is invalid!!!! You should be logged in. This code will never be reached";
@@ -364,7 +497,7 @@ namespace Session
     bool isValidCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)
     {
         // Get the session token
-        std::optional<std::string> token = getSessionToken(cgi);
+        std::optional<std::string> token = getCookieToken(cgi, "SESSION_TOKEN");
         if (!token.has_value())
         {
             return false;

@@ -17,7 +17,7 @@ namespace Session
 
     struct LoginResult
     {
-        bool isAuth;
+        bool isSessionToken;
         std::string sessionToken;
         std::string pendingSessionToken;
     };
@@ -39,7 +39,7 @@ namespace Session
     // submitting the code from the email
     // returns either the auth token for the user, or go to the next stage
     // if user, get the code, if admin, go to next stage
-    std::optional<LoginResult> confirmEmailCode(std::string pendingSessionToken);
+    std::optional<LoginResult> confirmEmailCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string code);
 
     // for submitting the 6 digit code for admins only
     std::optional<LoginResult> confirmAuthCode(std::string pendingSessionToken);
@@ -55,7 +55,7 @@ namespace Session
 
     PrivilegeLevel stringToPrivilegeLevel(const std::string& levelStr);
 
-    std::optional<std::string> getSessionToken(std::shared_ptr<cgicc::Cgicc> cgi);
+    std::optional<std::string> getCookieToken(std::shared_ptr<cgicc::Cgicc> cgi, std::string cookieName);
 }
 
 #endif
