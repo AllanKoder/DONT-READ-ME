@@ -17,6 +17,7 @@ COMMON_SOURCES = \
     ../../Views/components/csrf_token.comp.cpp \
 	../../Views/sections/login/login.view.cpp \
 	../../Views/sections/login/email.view.cpp \
+	../../Views/sections/login/app_code.view.cpp \
     ../../Views/sections/blogs/blogs.view.cpp \
     ../../Views/sections/blogs/update_blog.view.cpp \
     ../../Views/sections/blogs/blog.view.cpp \

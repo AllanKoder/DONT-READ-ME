@@ -37,13 +37,13 @@ namespace Session
     // returns pending_session token if successful
     std::optional<LoginResult> login(std::string username, std::string password);
 
-    // submitting the code from the email
+    // Submitting the 6 char code from the email
     // returns either the auth token for the user, or go to the next stage
     // if user, get the code, if admin, go to next stage
     std::optional<LoginResult> confirmEmailCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string code);
 
-    // for submitting the 6 digit code for admins only
-    std::optional<LoginResult> confirmAuthCode(std::string pendingSessionToken);
+    // for submitting the 2 character code for admins only
+    std::optional<LoginResult> confirmAuthCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string code);
 
     // create a anti-csrf token
     std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);

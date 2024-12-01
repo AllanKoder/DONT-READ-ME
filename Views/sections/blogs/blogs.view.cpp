@@ -14,7 +14,7 @@ namespace Views
         bodyOutput += "<div class='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>\n";
         
         bodyOutput += "    <form hx-get='/cgi-bin/blogs.cgi' hx-select='#table-container' \
-        hx-target='#table-container' hx-swap='innerHTML' hx-trigger='keyup changed delay:500ms'>\n"; // Form to submit search
+        hx-target='#table-container' hx-swap='innerHTML' hx-trigger='keyup changed'>\n"; // Form to submit search
         bodyOutput += "        <input type='text' name='search' placeholder='Search...' class='border rounded-md p-2 w-full mb-4' />\n";
         bodyOutput += "        <button type='submit' class='hidden'></button>\n";
         bodyOutput += "    </form>\n";

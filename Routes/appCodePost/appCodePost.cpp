@@ -4,6 +4,6 @@
 int main()
 {
     auto cgi = std::make_shared<cgicc::Cgicc>();
-    Controllers::loginPage(cgi).render();
+    Controllers::appCodePost(cgi).render();
     return EXIT_SUCCESS;
 }

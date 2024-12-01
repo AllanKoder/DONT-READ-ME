@@ -34,7 +34,8 @@ namespace Session
         {
             if (cookie.getName() == cookieName)
             {
-                return cookie.getValue();
+                if (!cookie.getValue().empty())
+                    return cookie.getValue();
             }
         }
 
@@ -462,6 +463,130 @@ namespace Session
                     result.isSessionToken = false;
                     result.pendingSessionToken = pendingSessionToken.value();
                     return result;
+                }
+            }
+
+            Logger::logWarning("Cannot find the session token given");
+            connection->close();
+            return std::nullopt; // Login failed: no matching email/password found
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot confirm the email code: ";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return std::nullopt; // Return false on exception
+        }
+    }
+
+    std::optional<LoginResult> confirmAuthCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string userProvidedCode)
+    {
+        Logger::logInfo("Reached confirmAuthCode() function");
+
+        // Check if the pending auth code is valid
+        // Check if it exists in database
+        // Check if it is expired
+        // Check if the code matches (not from database, but a seperate function)
+        // If it is wrong, increment matches
+        auto connection = Database::GetConnection(); // Get a database connection
+
+        // Prepare an SQL statement to check if email and password hash match
+        std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
+            "SELECT TIMESTAMPDIFF(SECOND, created_time, CURRENT_TIMESTAMP()) as time_difference, \
+                pt.verification_type, \
+                u.permission_level, \
+                u.id, \
+                pt.attempts \
+                FROM pending_session_tokens pt \
+                JOIN users u ON pt.user_id = u.id \
+                WHERE token = ?"));
+
+        std::optional<std::string> userProvidedToken = getCookieToken(cgi, "PENDING_SESSION_TOKEN");
+        if (!userProvidedToken.has_value())
+        {
+            Logger::logWarning("No provided token");
+        }
+        Logger::logInfo("User provided token: " + userProvidedToken.value());
+
+        selectStatement->setString(1, userProvidedToken.value());
+
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
+
+            // Is a valid token
+            if (res->next())
+            {
+                int timeDifference = res->getInt("time_difference"); // Get user ID from result set
+                PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
+                int userId = res->getInt("id");
+                int attempts = res->getInt("attempts");
+                std::string value = "AA";
+
+                // Statement to delete the token on either success or fail
+                std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(
+                    "DELETE FROM pending_session_tokens WHERE token = ?"));
+                deleteStatement->setString(1, userProvidedToken.value());
+
+                if (value != userProvidedCode)
+                {
+                    Logger::logWarning("Invalid user code provided");
+
+                    attempts++;
+                    if (attempts >= MAX_CODE_ATTEMPTS)
+                    {
+                        Logger::logWarning("Maximum attempts reached for token: " + userProvidedToken.value());
+                        // Delete the token
+                        deleteStatement->executeUpdate();
+                        Logger::logInfo("Token deleted due to max attempts: " + userProvidedToken.value());
+                        return std::nullopt;
+                    }
+
+                    // Increment the attempts
+                    std::shared_ptr<sql::PreparedStatement> updateStatement(connection->prepareStatement(
+                        "UPDATE pending_session_tokens SET attempts = ? WHERE token = ?"));
+                    updateStatement->setInt(1, attempts);
+                    updateStatement->setString(2, userProvidedToken.value());
+                    updateStatement->executeUpdate();
+
+                    return std::nullopt;
+                }
+
+                if (timeDifference >= PENDING_TOKEN_EXPIRY_TIME)
+                {
+                    Logger::logWarning("Token has exceeded the expiry time");
+                    // Delete expired token
+                    deleteStatement->executeUpdate();
+                    Logger::logInfo("Expired token deleted: " + userProvidedToken.value());
+                    return std::nullopt;
+                }
+
+                Logger::logInfo("Code verified successfully");
+
+                // Delete the token after successful verification
+                deleteStatement->executeUpdate();
+                Logger::logInfo("Token deleted after successful verification: " + userProvidedToken.value());
+
+                // The user has succeeded, the code is valid.
+                // the admin can be logged in now
+                if (level == PrivilegeLevel::ADMIN)
+                {
+                    std::optional<std::string> sessionToken = createSessionToken(userId);
+                    if (!sessionToken.has_value())
+                    {
+                        return std::nullopt;
+                    }
+
+                    LoginResult result;
+                    result.isSessionToken = true;
+                    result.sessionToken = sessionToken.value();
+                    return result;
+                }
+                else
+                {
+                    Logger::logCritical("User is not Admin in the pending session token, but logged in to here?");
+                    return std::nullopt;
                 }
             }
 
