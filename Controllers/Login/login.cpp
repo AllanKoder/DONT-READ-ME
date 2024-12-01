@@ -107,10 +107,10 @@ namespace Controllers
                 .setNotification(Views::NotificationType::SUCCESS, "Already Logged in");
         }
 
-        if (!Session::getCookieToken(cgi, "PENDING_SESSION_TOKEN").has_value())
+        if (!Session::isValidPendingSessionToken(cgi))
         {
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
-                .setNotification(Views::NotificationType::WARNING, "No need to go there.");
+                .setNotification(Views::NotificationType::WARNING, "Failed, or you are a bad actor");
         }
 
         return Views::Email(cgi);
@@ -177,10 +177,10 @@ namespace Controllers
                 .setNotification(Views::NotificationType::SUCCESS, "Already Logged in");
         }
 
-        if (!Session::getCookieToken(cgi, "PENDING_SESSION_TOKEN").has_value())
+        if (!Session::isValidPendingSessionToken(cgi))
         {
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
-                .setNotification(Views::NotificationType::WARNING, "No need to go there.");
+                .setNotification(Views::NotificationType::WARNING, "Failed, or you are a bad actor");
         }
 
         return Views::AppCode(cgi);

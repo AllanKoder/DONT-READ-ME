@@ -347,6 +347,43 @@ namespace Session
         }
     }
 
+    bool isValidPendingSessionToken(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        auto connection = Database::GetConnection(); // Get a database connection
+
+        // Prepare an SQL statement to check if token exists
+        std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
+            "SELECT token FROM pending_session_tokens WHERE token = ?"));
+
+        std::optional<std::string> userProvidedToken = getCookieToken(cgi, "PENDING_SESSION_TOKEN");
+        if (!userProvidedToken.has_value())
+        {
+            Logger::logWarning("No provided token");
+            return false;
+        }
+        Logger::logInfo("User provided token: " + userProvidedToken.value());
+
+        selectStatement->setString(1, userProvidedToken.value());
+
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
+            // Is a token that exists
+            if (res->next())
+            {
+                return true;
+            }
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot select for token: ";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return false; // Return false on exception
+        }
+    }
+
     std::optional<LoginResult> confirmEmailCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string userProvidedCode)
     {
         Logger::logInfo("Reached confirmEmailCode() function");
@@ -357,7 +394,7 @@ namespace Session
         // If the code is incorrect, then increment attempts, if we surpass the limit ()
         auto connection = Database::GetConnection(); // Get a database connection
 
-        // Prepare an SQL statement to check if email and password hash match
+        // Prepare an SQL statement to check if token exists
         std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
             "SELECT TIMESTAMPDIFF(SECOND, created_time, CURRENT_TIMESTAMP()) as time_difference, \
                 pt.value, \
@@ -373,6 +410,7 @@ namespace Session
         if (!userProvidedToken.has_value())
         {
             Logger::logWarning("No provided token");
+            return std::nullopt;
         }
         Logger::logInfo("User provided token: " + userProvidedToken.value());
 
@@ -506,6 +544,7 @@ namespace Session
         if (!userProvidedToken.has_value())
         {
             Logger::logWarning("No provided token");
+            return std::nullopt;
         }
         Logger::logInfo("User provided token: " + userProvidedToken.value());
 
@@ -522,7 +561,10 @@ namespace Session
                 PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
                 int userId = res->getInt("id");
                 int attempts = res->getInt("attempts");
-                std::string value = "AA";
+                // Get the app code that changes every 30 seconds.
+                std::string value = Crypto::getAppCode();
+
+                Logger::logInfo("The expected value is: " + value + ". Provided is: " + userProvidedCode);
 
                 // Statement to delete the token on either success or fail
                 std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(

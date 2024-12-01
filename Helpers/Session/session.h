@@ -37,6 +37,8 @@ namespace Session
     // returns pending_session token if successful
     std::optional<LoginResult> login(std::string username, std::string password);
 
+    bool isValidPendingSessionToken(std::shared_ptr<cgicc::Cgicc> cgi);
+
     // Submitting the 6 char code from the email
     // returns either the auth token for the user, or go to the next stage
     // if user, get the code, if admin, go to next stage

@@ -1,6 +1,6 @@
 #include "crypto.h"
-#include <iostream>
-#include <string>
+#include "../../env.h"
+#include "../../config.h"
 #include <crypto++/cryptlib.h>
 #include <crypto++/sha.h>
 #include <crypto++/hmac.h>
@@ -8,9 +8,11 @@
 #include <crypto++/rdrand.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/hex.h>
-#include "../../env.h"
-#include "../../config.h"
 #include <cstddef>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 namespace Crypto
 {
@@ -94,5 +96,34 @@ namespace Crypto
         hexEncoder.MessageEnd();
 
         return token;
+    }
+
+    std::string getCurrentTimeRounded30Seconds() {
+        static std::string cachedTime;
+        static auto lastUpdate = std::chrono::steady_clock::now();
+
+        auto now = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - lastUpdate).count();
+
+        if (duration >= 30 || cachedTime.empty()) {
+            auto timePoint = std::chrono::system_clock::now();
+            auto timeT = std::chrono::system_clock::to_time_t(timePoint);
+            std::tm timeInfo = *std::localtime(&timeT);
+
+            // Round down to nearest 30 seconds
+            timeInfo.tm_sec = (timeInfo.tm_sec / 30) * 30;
+
+            std::ostringstream oss;
+            oss << std::put_time(&timeInfo, "%Y-%m-%d %H:%M:%S");
+            cachedTime = oss.str();
+            lastUpdate = now;
+        }
+
+        return cachedTime;
+    }
+
+    std::string getAppCode()
+    {
+        return hash(getCurrentTimeRounded30Seconds(), AUTH_APP_KEY).substr(0, 2);
     }
 }
