@@ -6,8 +6,8 @@
 
 // LOGIN
 #define MAX_CODE_ATTEMPTS 3
-// In Seconds, 10 minutes.
-#define PENDING_TOKEN_EXPIRY_TIME 10*60
+// In Seconds (5 minutes), 5 minutes. 60 seconds * 5 minutes
+#define PENDING_TOKEN_EXPIRY_TIME 60*5
 
 // MODELS
 #define FIRST_NAME_LENGTH 50
@@ -19,8 +19,8 @@
 // SESSION
 // Must be even number to convert to hex
 #define SESSION_TOKEN_SIZE 256
-// Seconds for use, is a day long, 24 hours * 60 minutes * 60 seconds
-#define TOKEN_EXPIRY_TIME 24*60*60
+// In Seconds (20 minutes), 20 minutes * 60 seconds
+#define TOKEN_EXPIRY_TIME 20*60
 
 // LOGS
 #define LOG_FILE_LOCATION "/var/log/blog_app.log"

@@ -56,6 +56,7 @@ namespace Session
         // 1. Check the token is not modified
         // 2. Check if the token is in the database
         // 3. Check if the token is expired
+        // 4. Reset the last accessed timer
 
         Logger::logInfo("checking valid token on: " + token.value());
 
@@ -88,15 +89,23 @@ namespace Session
             {
                 int timeDiff = res->getInt("time_difference");
                 std::string username = res->getString("username").c_str();
+                int userId = res->getInt("user_id"); // Get user ID from result set
+                PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
 
+                Logger::logInfo("Time difference is: " + std::to_string(timeDiff) + ". The expiry time is: " + std::to_string(TOKEN_EXPIRY_TIME));
                 if (timeDiff >= TOKEN_EXPIRY_TIME)
                 {
                     // Has expired
                     Logger::logInfo("The token has expired. The timeDiff was " + std::to_string(timeDiff) + " with an expected timeDiff of at most " + std::to_string(TOKEN_EXPIRY_TIME));
+                    deleteSessionToken(userId);
                     return std::nullopt;
                 }
-                int userId = res->getInt("user_id"); // Get user ID from result set
-                PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
+
+                // Update last_accessed timestamp
+                std::shared_ptr<sql::PreparedStatement> updateStatement(connection->prepareStatement(
+                    "UPDATE session_tokens SET last_accessed = CURRENT_TIMESTAMP() WHERE value = ?;"));
+                updateStatement->setString(1, token.value());
+                updateStatement->executeUpdate();
 
                 UserInfo info;
                 info.id = userId;
@@ -244,7 +253,7 @@ namespace Session
         auto connection = Database::GetConnection(); // Get a database connection
         // Create the token in the database
         std::shared_ptr<sql::PreparedStatement> insertStatement(connection->prepareStatement(
-            "INSERT INTO session_tokens VALUES(?, CURRENT_TIMESTAMP(), ?)"));
+            "INSERT INTO session_tokens (value, user_id) VALUES(?, ?)"));
 
         // last accessed is the current timestamp. NOW()
         // user id is the parameter
@@ -382,6 +391,9 @@ namespace Session
             connection->close();
             return false; // Return false on exception
         }
+
+        // Should never reach here, but false anyhow
+        return false;
     }
 
     std::optional<LoginResult> confirmEmailCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string userProvidedCode)
@@ -429,10 +441,20 @@ namespace Session
                 int userId = res->getInt("id");
                 int attempts = res->getInt("attempts");
 
+                Logger::logInfo("Pending token expiry time is: " + std::to_string(PENDING_TOKEN_EXPIRY_TIME) + ". The current time difference is: " + std::to_string(timeDifference));
+                
                 // Statement to delete the token on either success or fail
                 std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(
                     "DELETE FROM pending_session_tokens WHERE token = ?"));
                 deleteStatement->setString(1, userProvidedToken.value());
+
+                if (timeDifference >= PENDING_TOKEN_EXPIRY_TIME)
+                {
+                    // Delete expired token
+                    deleteStatement->executeUpdate();
+                    Logger::logInfo("Expired token deleted: " + userProvidedToken.value());
+                    return std::nullopt;
+                }
 
                 if (value != userProvidedCode)
                 {
@@ -458,14 +480,6 @@ namespace Session
                     return std::nullopt;
                 }
 
-                if (timeDifference >= PENDING_TOKEN_EXPIRY_TIME)
-                {
-                    Logger::logWarning("Token has exceeded the expiry time");
-                    // Delete expired token
-                    deleteStatement->executeUpdate();
-                    Logger::logInfo("Expired token deleted: " + userProvidedToken.value());
-                    return std::nullopt;
-                }
 
                 Logger::logInfo("Code verified successfully");
 
@@ -571,6 +585,15 @@ namespace Session
                     "DELETE FROM pending_session_tokens WHERE token = ?"));
                 deleteStatement->setString(1, userProvidedToken.value());
 
+                if (timeDifference >= PENDING_TOKEN_EXPIRY_TIME)
+                {
+                    Logger::logWarning("Token has exceeded the expiry time");
+                    // Delete expired token
+                    deleteStatement->executeUpdate();
+                    Logger::logInfo("Expired token deleted: " + userProvidedToken.value());
+                    return std::nullopt;
+                }
+
                 if (value != userProvidedCode)
                 {
                     Logger::logWarning("Invalid user code provided");
@@ -592,15 +615,6 @@ namespace Session
                     updateStatement->setString(2, userProvidedToken.value());
                     updateStatement->executeUpdate();
 
-                    return std::nullopt;
-                }
-
-                if (timeDifference >= PENDING_TOKEN_EXPIRY_TIME)
-                {
-                    Logger::logWarning("Token has exceeded the expiry time");
-                    // Delete expired token
-                    deleteStatement->executeUpdate();
-                    Logger::logInfo("Expired token deleted: " + userProvidedToken.value());
                     return std::nullopt;
                 }
 
