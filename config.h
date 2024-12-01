@@ -26,5 +26,6 @@
 
 // Email
 #define PAYLOAD_TEXT_SIZE 1024
+#define EMAIL_FROM_ADDRESS "no-reply@dontreadme.com"
 
 #endif

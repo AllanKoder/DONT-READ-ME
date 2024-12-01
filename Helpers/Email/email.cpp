@@ -5,7 +5,7 @@
 #include "../../Logger/logger.h"
 #include "../../env.h"
 #include "../../config.h"
-
+#define EMAIL_FROM_ADDRESS "no-reply@dontreadme.com"
 char payload_text[6][PAYLOAD_TEXT_SIZE]; // Allocate a fixed size for each entry
 
 struct upload_status {
@@ -39,7 +39,7 @@ void Email::sendEmail(const EmailMessage& email) {
     // Prepare the payload text
     snprintf(payload_text[0], PAYLOAD_TEXT_SIZE, "Date: Mon, 29 Nov 2024 21:54:29 +0000\r\n");
     snprintf(payload_text[1], PAYLOAD_TEXT_SIZE, "To: %s\r\n", email.to.c_str());
-    snprintf(payload_text[2], PAYLOAD_TEXT_SIZE, "From: %s\r\n", email.from.c_str());
+    snprintf(payload_text[2], PAYLOAD_TEXT_SIZE, "From: %s\r\n", EMAIL_FROM_ADDRESS);
     snprintf(payload_text[3], PAYLOAD_TEXT_SIZE, "Subject: %s\r\n", email.subject.c_str());
     snprintf(payload_text[4], PAYLOAD_TEXT_SIZE, "\r\n");  // Blank line separating headers from body
     snprintf(payload_text[5], PAYLOAD_TEXT_SIZE, "%s\r\n", email.body.c_str());
@@ -56,7 +56,7 @@ void Email::sendEmail(const EmailMessage& email) {
         curl_easy_setopt(curl, CURLOPT_URL, smtp_url);
         
         // Set the sender's email address
-        curl_easy_setopt(curl, CURLOPT_MAIL_FROM, email.from.c_str());
+        curl_easy_setopt(curl, CURLOPT_MAIL_FROM, EMAIL_FROM_ADDRESS);
         
         // Add recipient email address
         recipients = curl_slist_append(recipients, email.to.c_str());

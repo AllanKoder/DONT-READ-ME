@@ -15,6 +15,13 @@ namespace Session
         USER
     };
 
+    struct LoginResult
+    {
+        bool isAuth;
+        std::string sessionToken;
+        std::string pendingSessionToken;
+    };
+
     struct UserInfo
     {
         int id;
@@ -26,8 +33,16 @@ namespace Session
 
     bool deleteSessionToken(int userId);
 
-    // returns session token if successful
-    std::optional<std::string> login(std::string username, std::string password);
+    // returns pending_session token if successful
+    std::optional<LoginResult> login(std::string username, std::string password);
+
+    // submitting the code from the email
+    // returns either the auth token for the user, or go to the next stage
+    // if user, get the code, if admin, go to next stage
+    std::optional<LoginResult> confirmEmailCode(std::string pendingSessionToken);
+
+    // for submitting the 6 digit code for admins only
+    std::optional<LoginResult> confirmAuthCode(std::string pendingSessionToken);
 
     // create a anti-csrf token
     std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);

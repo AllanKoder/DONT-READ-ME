@@ -1,7 +1,3 @@
-#include <iostream>
-#include <cgicc/HTTPHTMLHeader.h>
-#include <cgicc/HTMLClasses.h>
-#include <cgicc/Cgicc.h>
 #include "../../Controllers/Blog/blog.h"
 
 // /createBlog.cgi

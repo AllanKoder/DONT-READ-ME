@@ -1,9 +1,10 @@
 #include "../../Controllers/Login/login.h"
 
-// /logout.cgi
+// /login.cgi
 int main()
 {
     auto cgi = std::make_shared<cgicc::Cgicc>();
-    Controllers::logoutPost(cgi).render();
+    // Output content from the login.view.h file
+    Controllers::emailCodePage(cgi).render();
     return EXIT_SUCCESS;
 }

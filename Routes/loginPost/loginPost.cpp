@@ -1,4 +1,3 @@
-#include <iostream>
 #include "../../Controllers/Login/login.h"
 
 // /loginPost.cgi

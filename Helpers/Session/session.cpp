@@ -2,6 +2,7 @@
 #include "../../Logger/logger.h"
 #include "../../env.h"
 #include "../../config.h"
+#include "../Email/email.h"
 #include "../Cryptography/crypto.h"
 #include "../Request/request.h"
 #include "../String/string_helpers.h"
@@ -11,10 +12,14 @@
 
 namespace Session
 {
-    PrivilegeLevel stringToPrivilegeLevel(const std::string& levelStr) {
-        if (levelStr == "admin") {
+    PrivilegeLevel stringToPrivilegeLevel(const std::string &levelStr)
+    {
+        if (levelStr == "admin")
+        {
             return ADMIN;
-        } else if (levelStr == "user") {
+        }
+        else if (levelStr == "user")
+        {
             return USER;
         }
         return USER;
@@ -54,22 +59,22 @@ namespace Session
         Logger::logInfo("checking valid token on: " + token.value());
 
         // Check if the token has the correct length
-        if (token.value().length() != SESSION_TOKEN_SIZE) {
+        if (token.value().length() != SESSION_TOKEN_SIZE)
+        {
             Logger::logWarning("token is invalid size");
             return std::nullopt;
         }
 
         // Check if the token is in the database
         auto connection = Database::GetConnection(); // Get a database connection
-        
+
         std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
             "SELECT TIMESTAMPDIFF(SECOND, last_accessed, CURRENT_TIMESTAMP()) as time_difference, \
             st.user_id, \
             u.permission_level \
             FROM session_tokens st \
             JOIN users u ON st.user_id = u.id \
-            WHERE st.value = ?;")
-        );
+            WHERE st.value = ?;"));
 
         selectStatement->setString(1, token.value());
 
@@ -120,9 +125,7 @@ namespace Session
 
         // Search for existing session token for this user
         std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(
-            "DELETE FROM session_tokens WHERE user_id = ?"
-            )
-        );
+            "DELETE FROM session_tokens WHERE user_id = ?"));
 
         deleteStatement->setInt(1, userId);
 
@@ -131,7 +134,7 @@ namespace Session
             // Deleted
             deleteStatement->executeQuery();
         }
-        catch(const sql::SQLException& e)
+        catch (const sql::SQLException &e)
         {
             std::string output = "Could not delete existing tokens ";
             output += e.what(); // Log any SQL exceptions that occur during execution
@@ -140,6 +143,87 @@ namespace Session
             return false;
         }
         return true;
+    }
+
+    bool deletePendingSessionToken(int userId)
+    {
+        // Delete all existing tokens with the user
+        auto connection = Database::GetConnection(); // Get a database connection
+
+        // Search for existing session token for this user
+        std::shared_ptr<sql::PreparedStatement> deleteStatement(connection->prepareStatement(
+            "DELETE FROM pending_session_tokens WHERE user_id = ?"));
+
+        deleteStatement->setInt(1, userId);
+
+        try
+        {
+            // Deleted
+            deleteStatement->executeQuery();
+        }
+        catch (const sql::SQLException &e)
+        {
+            std::string output = "Could not delete existing pending session tokens";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return false;
+        }
+        return true;
+    }
+
+    // if the user is not logged in at all, then create the pending session token for the email stage
+    // the user has logged in, did the email code, now create the app code token
+    std::optional<std::string> createPendingSessionToken(int userId, std::string stage, std::string code = "")
+    {
+        if (!(stage == "email" || stage == "app"))
+        {
+            Logger::logInfo("Stage is not 'email' or 'app'");
+            return std::nullopt;
+        }
+
+        if (!deletePendingSessionToken(userId))
+        {
+            Logger::logInfo("Could not delete old pending session tokens");
+            return std::nullopt;
+        }
+
+        std::string token = Crypto::getRandomToken();
+
+        Logger::logInfo("code is: " + code);
+        Logger::logInfo("token is: " + token);
+        auto connection = Database::GetConnection(); // Get a database connection
+        // Create the token in the database
+        std::shared_ptr<sql::PreparedStatement> insertStatement(connection->prepareStatement(
+            "INSERT INTO pending_session_tokens (token, value, user_id, verification_type) VALUES(?, ?, ?, ?)"));
+
+        // token, created time, value, user_id, stage
+        insertStatement->setString(1, token);
+        insertStatement->setString(2, code);
+        insertStatement->setInt(3, userId);
+        insertStatement->setString(4, stage);
+
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(insertStatement->executeQuery());
+
+            Logger::logInfo("Can execute query insert pending_session_tokens");
+
+            // Pending Session Token Created
+            connection->close();
+            return token;
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot create pending_session_tokens:";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return std::nullopt; // Return empty on exception
+        }
+
+        // Failed, should not reach here
+        return std::nullopt;
     }
 
     // Function to create a session token for a given user ID
@@ -156,14 +240,13 @@ namespace Session
         auto connection = Database::GetConnection(); // Get a database connection
         // Create the token in the database
         std::shared_ptr<sql::PreparedStatement> insertStatement(connection->prepareStatement(
-            "INSERT INTO session_tokens VALUES(?, CURRENT_TIMESTAMP(), ?)")
-        );
+            "INSERT INTO session_tokens VALUES(?, CURRENT_TIMESTAMP(), ?)"));
 
         // last accessed is the current timestamp. NOW()
         // user id is the parameter
         insertStatement->setString(1, token);
         insertStatement->setInt(2, userId);
-        
+
         try
         {
             std::unique_ptr<sql::ResultSet> res(insertStatement->executeQuery());
@@ -189,7 +272,7 @@ namespace Session
 
     // Function to log in a user with email and password
     // will get rid of their old session_token
-    std::optional<std::string> login(std::string email, std::string password)
+    std::optional<LoginResult> login(std::string email, std::string password)
     {
         Logger::logInfo("Reached login() function");
 
@@ -219,16 +302,31 @@ namespace Session
                 int userId = res->getInt("id"); // Get user ID from result set
 
                 Logger::logInfo("user id: " + userId);
-                // Create a session token for this user ID
-                std::optional<std::string> token = createSessionToken(userId);
+                // Create a pending session token for this user ID
+                // Send an email with the code, and create the pending session token
+            
+                // The code the user will input
+                std::string sixCharCode = Crypto::getRandomSixCharCode();
+                // Make the token
+                std::optional<std::string> token = createPendingSessionToken(userId, "email", sixCharCode);
+
                 if (token.has_value())
                 {
-                    Logger::logInfo("Created Cookie: " + token.value());
+                    // Send the email
+                    Email::EmailMessage message;
+                    message.to = email;
+                    message.body = "This is your code: " + sixCharCode;
+                    message.subject = "Don't README - Code";
+                    
+                    Email::sendEmail(message);
 
                     connection->close();
                     // Login successful
-                    return token;
-                } 
+                    LoginResult result;
+                    result.isAuth = false;
+                    result.pendingSessionToken = token.value();
+                    return result;
+                }
             }
 
             Logger::logWarning("Cannot find the user and password given");
@@ -253,7 +351,7 @@ namespace Session
         {
             return "This is invalid!!!! You should be logged in. This code will never be reached";
         }
- 
+
         return Crypto::hash(token.value(), CRSF_KEY);
     }
 
@@ -278,7 +376,7 @@ namespace Session
         if (csrfToken.empty())
         {
             Logger::logWarning("Invalid parameters for creating blog");
-            return false; 
+            return false;
         }
 
         // Is their sent token valid?

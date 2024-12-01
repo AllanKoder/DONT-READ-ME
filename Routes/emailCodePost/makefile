@@ -2,13 +2,13 @@
 include ../../common.mk
 
 # Unique source file
-SOURCES = test.cpp $(COMMON_SOURCES)
+SOURCES = emailCodePost.cpp $(COMMON_SOURCES)
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Executable name
-EXECUTABLE = test.cgi
+EXECUTABLE = emailCodePost.cgi
 
 # Default target
 all: $(EXECUTABLE)

@@ -1,6 +1,4 @@
-#include "../../Logger/logger.h"
 #include "../../Controllers/Seeding/seed.h"
-#include "../../Helpers/Database/db_connection.h"
 
 // /seed.cgi
 int main()

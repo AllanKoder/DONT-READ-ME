@@ -43,15 +43,16 @@ namespace Controllers
         }
 
         Logger::logInfo("Logging in with email: " + email + " password: " + password); 
-        std::optional<std::string> token = Session::login(email, password);
         
-        if (token.has_value())
+        std::optional<Session::LoginResult> loginResult = Session::login(email, password);
+        
+        if (loginResult.has_value())
         {
             // Direct to homepage with cookies and success notification
-            std::string cookie = "SESSION_TOKEN=" + token.value() + "; HttpOnly ; SameSite=Strict";
-            return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
+            std::string cookie = "PENDING_SESSION_TOKEN=" + loginResult.value().pendingSessionToken + "; HttpOnly ; SameSite=Strict";
+            return Views::Redirect(cgi, "/cgi-bin/emailCode.cgi")
                 .setCookie(cookie)
-                .setNotification(Views::NotificationType::SUCCESS, "Login successful! Welcome back.");
+                .setNotification(Views::NotificationType::SUCCESS, "Check your email for the auth code!");
         }
         else
         {
