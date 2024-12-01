@@ -71,6 +71,7 @@ namespace Session
         std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
             "SELECT TIMESTAMPDIFF(SECOND, last_accessed, CURRENT_TIMESTAMP()) as time_difference, \
             st.user_id, \
+            u.username, \
             u.permission_level \
             FROM session_tokens st \
             JOIN users u ON st.user_id = u.id \
@@ -85,6 +86,7 @@ namespace Session
             if (res->next())
             {
                 int timeDiff = res->getInt("time_difference");
+                std::string username = res->getString("username").c_str();
 
                 if (timeDiff >= TOKEN_EXPIRY_TIME)
                 {
@@ -98,6 +100,7 @@ namespace Session
                 UserInfo info;
                 info.id = userId;
                 info.privilegeLevel = level;
+                info.username = username;
 
                 Logger::logInfo("Got the user_id: " + std::to_string(userId));
                 connection->close();

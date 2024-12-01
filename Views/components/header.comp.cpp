@@ -12,7 +12,9 @@ namespace Views
         output_text += "<header class=\"bg-gray-100 shadow-md border-b border-gray-300\">\n";
         output_text += "    <div class=\"max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between\">\n";
 
-        if (Session::userInfo(this->cgi).has_value())
+        std::optional<Session::UserInfo> userInfo = Session::userInfo(this->cgi);
+        bool isLoggedIn = userInfo.has_value();
+        if (isLoggedIn)
         {
             // User is authenticated, display as hyperlink
             output_text += "        <h1 class=\"text-3xl font-bold text-gray-900\">\n";
@@ -24,9 +26,7 @@ namespace Views
             // User is not authenticated, display as regular text
             output_text += "        <h1 class=\"text-3xl font-bold text-gray-900\">don't README</h1>\n";
         }
-
         // Check if the user is the admin
-        std::optional<Session::UserInfo> userInfo = Session::userInfo(this->cgi);
         if (userInfo.has_value() && userInfo.value().privilegeLevel == Session::ADMIN)
         {
             // Create a user
@@ -36,12 +36,19 @@ namespace Views
         }
 
         // Check if the user is logged in
-        if (Session::userInfo(this->cgi).has_value())
+        if (isLoggedIn)
+
         {
             // Create a blog
             output_text += "        <div>\n";
             output_text += "            <a href=\"/cgi-bin/createBlog.cgi\" class=\"text-blue-600 hover:text-blue-800\">Create Blog</a>\n";
             output_text += "        </div>\n";
+            
+            // Show their username
+            output_text += "        <div>\n";
+            output_text += "            <p>Hello, " + userInfo.value().username + "</p>\n";
+            output_text += "        </div>\n";
+            
             // Print the Logout header
             output_text += "        <div>\n";
             output_text += "            <a href=\"/cgi-bin/logout.cgi\" class=\"text-blue-600 hover:text-blue-800\">Logout</a>\n";

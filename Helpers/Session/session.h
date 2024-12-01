@@ -25,6 +25,7 @@ namespace Session
     struct UserInfo
     {
         int id;
+        std::string username;
         PrivilegeLevel privilegeLevel;
     };
 
