@@ -29,7 +29,7 @@ namespace Views
         // CSRF Token
         bodyOutput += CsrfToken(cgi).Render();
 
-        bodyOutput += "        <button type='submit' class='bg-blue-500 text-white rounded-md p-2'>Update</button>\n";
+        bodyOutput += "        <button type='submit' class='bg-blue-500 text-white rounded-md p-2'>Create</button>\n";
         bodyOutput += "    </form>\n";
 
         bodyOutput += "</div>\n"; // End of main container

@@ -36,10 +36,10 @@ namespace Views
         // Upvote
         bodyOutput += "<div class='flex items-center'>\n";
         bodyOutput += "    <div class='flex flex-row items-stretch border border-gray-300 rounded-md overflow-hidden h-6 mb-4'>\n";
-        bodyOutput += "        <form hx-post='/cgi-bin/upvoteBlog.cgi/" + std::to_string(post.id) + "' \
-                                hx-target='#upvotes-counter' hx-select='#upvotes-counter' hx-swap='outerHTML' class='h-full'>\n";
+        bodyOutput += "        <form action='/cgi-bin/upvoteBlog.cgi/" + std::to_string(post.id) + "' method='POST' class='h-full'>\n";
         bodyOutput += CsrfToken(cgi).Render();
-        bodyOutput += "            <button type='submit' class='bg-gray-100 hover:bg-gray-200 transition h-full px-1 text-gray-600 flex items-center justify-center'>\n";
+        bodyOutput += "            <button type='submit' hx-post='/cgi-bin/upvoteBlog.cgi/" + std::to_string(post.id) + "' \
+                                    hx-target='#upvotes-counter' hx-select='#upvotes-counter' hx-swap='outerHTML' class='bg-gray-100 hover:bg-gray-200 transition h-full px-1 text-gray-600 flex items-center justify-center'>\n";
         bodyOutput += "                <svg class='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>\n";
         bodyOutput += "                    <path fill-rule='evenodd' d='M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z' clip-rule='evenodd'></path>\n";
         bodyOutput += "                </svg>\n";
@@ -49,10 +49,10 @@ namespace Views
         // Votes
         bodyOutput += "        <div id='upvotes-counter' class='px-3 flex items-center justify-center bg-white text-center min-w-[2rem]'>" + std::to_string(post.upvotes) + "</div>\n";
 
-        bodyOutput += "        <form hx-post='/cgi-bin/downvoteBlog.cgi/" + std::to_string(post.id) + "' \
-                                hx-target='#upvotes-counter' hx-select='#upvotes-counter' hx-swap='outerHTML' class='h-full'>\n";
+        bodyOutput += "        <form action='/cgi-bin/downvoteBlog.cgi/" + std::to_string(post.id) + "' method='POST' class='h-full'>\n";
         bodyOutput += CsrfToken(cgi).Render();
-        bodyOutput += "            <button type='submit' class='bg-gray-100 hover:bg-gray-200 transition h-full px-1 text-gray-600 flex items-center justify-center'>\n";
+        bodyOutput += "            <button type='submit' hx-post='/cgi-bin/downvoteBlog.cgi/" + std::to_string(post.id) + "' \
+                                        hx-target='#upvotes-counter' hx-select='#upvotes-counter' hx-swap='outerHTML' class='bg-gray-100 hover:bg-gray-200 transition h-full px-1 text-gray-600 flex items-center justify-center'>\n";
         bodyOutput += "                <svg class='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>\n";
         bodyOutput += "                    <path fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'></path>\n";
         bodyOutput += "                </svg>\n";

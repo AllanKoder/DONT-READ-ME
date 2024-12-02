@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <curl/curl.h>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 #include "../../Logger/logger.h"
 #include "../../env.h"
 #include "../../config.h"
@@ -36,8 +39,16 @@ void Email::sendEmail(const EmailMessage& email) {
     struct curl_slist *recipients = NULL;
     struct upload_status upload_ctx = {0};
 
+    // Get current time
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::time_t current_time = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss << std::put_time(std::gmtime(&current_time), "Date: %a, %d %b %Y %H:%M:%S +0000\r\n");
+    std::string date_string = ss.str();
+
     // Prepare the payload text
-    snprintf(payload_text[0], PAYLOAD_TEXT_SIZE, "Date: Mon, 29 Nov 2024 21:54:29 +0000\r\n");
+    snprintf(payload_text[0], PAYLOAD_TEXT_SIZE, "%s", date_string.c_str());
     snprintf(payload_text[1], PAYLOAD_TEXT_SIZE, "To: %s\r\n", email.to.c_str());
     snprintf(payload_text[2], PAYLOAD_TEXT_SIZE, "From: %s\r\n", EMAIL_FROM_ADDRESS);
     snprintf(payload_text[3], PAYLOAD_TEXT_SIZE, "Subject: %s\r\n", email.subject.c_str());
