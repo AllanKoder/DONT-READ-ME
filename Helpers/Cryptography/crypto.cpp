@@ -124,6 +124,6 @@ namespace Crypto
 
     std::string getAppCode()
     {
-        return hash(getCurrentTimeRounded30Seconds(), AUTH_APP_KEY).substr(0, 2);
+        return hash(getCurrentTimeRounded30Seconds(), AUTH_APP_KEY).substr(0, 6);
     }
 }

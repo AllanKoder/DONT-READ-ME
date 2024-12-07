@@ -18,7 +18,7 @@
 
 // SESSION
 // Must be even number to convert to hex
-#define SESSION_TOKEN_SIZE 256
+#define SESSION_TOKEN_SIZE 700
 // In Seconds (20 minutes), 20 minutes * 60 seconds
 #define TOKEN_EXPIRY_TIME 20*60
 
