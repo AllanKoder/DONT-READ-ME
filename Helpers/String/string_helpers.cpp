@@ -82,7 +82,7 @@ namespace StringHelpers
         for (char c : src) {
             switch (c) {
                 case '&':
-                    result += "🙲"; // Ampersand
+                    result += "＆"; // Ampersand
                     break;
                 case '\"':
                     result += "“"; // Double quote 

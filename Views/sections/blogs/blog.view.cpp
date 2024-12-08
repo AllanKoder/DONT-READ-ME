@@ -63,7 +63,9 @@ namespace Views
         bodyOutput += "</div>\n";
 
         // Content
+        bodyOutput += "<div class='max-h-64 overflow-y-auto'>\n";
         bodyOutput += "    <p class='mb-6 text-lg'>" + StringHelpers::htmlSpecialChars(post.content) + "</p>\n"; // Content of the blog post
+        bodyOutput += "</div>\n";
 
         // End of main container
         bodyOutput += "</div>\n";
