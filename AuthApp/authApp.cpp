@@ -2,7 +2,7 @@
 #include "../env.h"
 #include "../Helpers/Cryptography/crypto.h"
 
-// The application which shows the code for admin login
+// The application which shows the code for admin login, simulates the hardware token
 int main()
 {
     std::string challengeCode;

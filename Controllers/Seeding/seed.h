@@ -8,6 +8,14 @@
 
 namespace Controllers
 {
+    /**
+     * @brief Function for seeding the database with sample users
+     *
+     * Creates admin, and two users.
+     * 
+     * @param cgi Shared pointer to a Cgicc object for CGI handling.
+     * @returns View the view for seeding the database.
+     */
     Views::View seed(std::shared_ptr<cgicc::Cgicc> cgi);
 }
 

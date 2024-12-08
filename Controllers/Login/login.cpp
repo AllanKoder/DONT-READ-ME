@@ -101,7 +101,7 @@ namespace Controllers
     {
         if (Session::userInfo(cgi).has_value())
         {
-            Logger::logInfo("email Code Page: User is already logged in");
+            Logger::logInfo("Email Code Page: User is already logged in");
             // Redirect to homepage
             return Views::Redirect(cgi, "/cgi-bin/blogs.cgi")
                 .setNotification(Views::NotificationType::SUCCESS, "Already Logged in");
