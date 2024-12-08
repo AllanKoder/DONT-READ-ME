@@ -19,6 +19,7 @@ namespace Views
         bodyOutput += "<div class='flex flex-row items-center gap-3'>\n";
         bodyOutput += "    <h1 class='text-3xl font-bold'>" + StringHelpers::htmlSpecialChars(post.title) + "</h1>\n";
 
+        // Creator of the blog, can edit
         std::optional<Session::UserInfo> userInfo = Session::userInfo(cgi);
         if (userInfo.has_value() && userInfo.value().id == post.userId)
         {
