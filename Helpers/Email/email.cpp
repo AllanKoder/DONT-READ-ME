@@ -1,4 +1,4 @@
-#include "email.h"  
+#include "email.h"
 #include <stdio.h>
 #include <string.h>
 #include <curl/curl.h>
@@ -11,27 +11,31 @@
 #define EMAIL_FROM_ADDRESS "no-reply@dontreadme.com"
 char payload_text[6][PAYLOAD_TEXT_SIZE]; // Allocate a fixed size for each entry
 
-struct upload_status {
+struct upload_status
+{
     int lines_read;
 };
 
-static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp) {
-    (void) size, (void) nmemb; // silence warnings
+static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
+{
+    (void)size, (void)nmemb; // silence warnings
 
     struct upload_status *upload_ctx = (struct upload_status *)userp;
     const char *data;
 
-    if (upload_ctx->lines_read >= (int)(sizeof(payload_text) / sizeof(payload_text[0]))) {
-        return 0;  // End of payload
+    if (upload_ctx->lines_read >= (int)(sizeof(payload_text) / sizeof(payload_text[0])))
+    {
+        return 0; // End of payload
     }
 
     data = payload_text[upload_ctx->lines_read++];
     size_t len = strlen(data);
     memcpy(ptr, data, len);
-    return len;  // Return number of bytes copied
+    return len; // Return number of bytes copied
 }
 
-void Email::sendEmail(const EmailMessage& email) {
+void Email::sendEmail(const EmailMessage &email)
+{
     Logger::logInfo("Initializing email sending process...");
 
     CURL *curl;
@@ -52,27 +56,28 @@ void Email::sendEmail(const EmailMessage& email) {
     snprintf(payload_text[1], PAYLOAD_TEXT_SIZE, "To: %s\r\n", email.to.c_str());
     snprintf(payload_text[2], PAYLOAD_TEXT_SIZE, "From: %s\r\n", EMAIL_FROM_ADDRESS);
     snprintf(payload_text[3], PAYLOAD_TEXT_SIZE, "Subject: %s\r\n", email.subject.c_str());
-    snprintf(payload_text[4], PAYLOAD_TEXT_SIZE, "\r\n");  // Blank line separating headers from body
+    snprintf(payload_text[4], PAYLOAD_TEXT_SIZE, "\r\n"); // Blank line separating headers from body
     snprintf(payload_text[5], PAYLOAD_TEXT_SIZE, "%s\r\n", email.body.c_str());
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
 
-    if(curl) {
+    if (curl)
+    {
         // Set SMTP server URL
         char smtp_url[256];
         snprintf(smtp_url, sizeof(smtp_url), "%s:%s", EMAIL_SERVER_HOST, EMAIL_SERVER_PORT);
         Logger::logInfo("Using SMTP server: " + std::string(smtp_url));
-        
+
         curl_easy_setopt(curl, CURLOPT_URL, smtp_url);
-        
+
         // Set the sender's email address
         curl_easy_setopt(curl, CURLOPT_MAIL_FROM, EMAIL_FROM_ADDRESS);
-        
+
         // Add recipient email address
         recipients = curl_slist_append(recipients, email.to.c_str());
         curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-        
+
         // Specify the payload source and read function
         curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
         curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
@@ -89,19 +94,23 @@ void Email::sendEmail(const EmailMessage& email) {
         res = curl_easy_perform(curl);
 
         // Check for errors
-        if(res != CURLE_OK) {
+        if (res != CURLE_OK)
+        {
             Logger::logCritical("Email sending failed: " + std::string(curl_easy_strerror(res)));
-        } else {
+        }
+        else
+        {
             Logger::logInfo("Email sent successfully.");
         }
 
         // Clean up
         curl_slist_free_all(recipients);
         curl_easy_cleanup(curl);
-    } else {
+    }
+    else
+    {
         Logger::logCritical("Failed to initialize CURL.");
     }
-    
+
     curl_global_cleanup();
 }
-

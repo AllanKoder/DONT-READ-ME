@@ -1,9 +1,8 @@
 #include "users.h"
-#include <memory>
 #include <mariadb/conncpp.hpp>
 #include "user_dto.h"
-#include "../../Cryptography/crypto.h"
 #include "../db_connection.h"
+#include "../../Cryptography/crypto.h"
 
 namespace Database
 {
@@ -11,11 +10,10 @@ namespace Database
     {
         auto connection = Database::GetConnection();
 
+        // Create user statement
         std::unique_ptr<sql::PreparedStatement> statement(
             connection->prepareStatement(
-                "INSERT INTO users (username, email, password_hash, permission_level) VALUES (?, ?, ?, ?)"
-            )
-        );
+                "INSERT INTO users (username, email, password_hash, permission_level) VALUES (?, ?, ?, ?)"));
 
         statement->setString(1, user.username);
         statement->setString(2, user.email);
