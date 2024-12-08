@@ -4,6 +4,11 @@
 #include <string>
 #include <vector>
 
+/**
+ * @brief A series of basic helper functions for the handling of strings.
+ * 
+ * Functions to help with string processing. 
+ */
 namespace StringHelpers
 {
     /**
