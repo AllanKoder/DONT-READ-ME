@@ -24,6 +24,6 @@ namespace Views
         bodyOutput += "</form>\n";
 
         setBody(bodyOutput);
-        setTitle("Enter 2-Char Code");
+        setTitle("Enter 6-Char Code");
     }
 }

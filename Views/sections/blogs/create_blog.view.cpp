@@ -1,8 +1,6 @@
 #include "create_blog.view.h"
 #include "../../../Helpers/Session/session.h"
 #include "../../components/csrf_token.comp.h"
-#include <sstream>
-#include <vector>
 
 namespace Views
 {
