@@ -4,7 +4,6 @@ namespace Database
 {
     std::unique_ptr<sql::Connection> GetConnection()
     {
-        // Seed the database with users
         // Instantiate Driver
         sql::Driver *driver = sql::mariadb::get_driver_instance();
 

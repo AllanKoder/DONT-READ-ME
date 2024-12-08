@@ -187,7 +187,7 @@ namespace Session
 
     // if the user is not logged in at all, then create the pending session token for the email stage
     // the user has logged in, did the email code, now create the app code token
-    std::optional<std::string> createPendingSessionToken(int userId, std::string stage, std::string code = "")
+    std::optional<std::string> createPendingSessionToken(int userId, std::string stage, std::string code)
     {
         if (!(stage == "email" || stage == "app"))
         {
@@ -505,7 +505,10 @@ namespace Session
                 // the admin needs to do the next step of using the auth app
                 else if (level == PrivilegeLevel::ADMIN)
                 {
-                    std::optional<std::string> pendingSessionToken = createPendingSessionToken(userId, "app");
+                    // The code the challenge uses
+                    std::string sixCharCode = Crypto::getRandomSixCharCode();
+
+                    std::optional<std::string> pendingSessionToken = createPendingSessionToken(userId, "app", sixCharCode);
                     if (!pendingSessionToken.has_value())
                     {
                         return std::nullopt;
@@ -543,10 +546,11 @@ namespace Session
         // If it is wrong, increment matches
         auto connection = Database::GetConnection(); // Get a database connection
 
-        // Prepare an SQL statement to check if email and password hash match
+        // Prepare an SQL statement to check if the token exists
         std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
             "SELECT TIMESTAMPDIFF(SECOND, created_time, CURRENT_TIMESTAMP()) as time_difference, \
                 pt.verification_type, \
+                pt.value, \
                 u.permission_level, \
                 u.id, \
                 pt.attempts \
@@ -575,8 +579,9 @@ namespace Session
                 PrivilegeLevel level = stringToPrivilegeLevel(res->getString("permission_level").c_str());
                 int userId = res->getInt("id");
                 int attempts = res->getInt("attempts");
-                // Get the app code that changes every 30 seconds.
-                std::string value = Crypto::getAppCode();
+                std::string challengeValue = res->getString("value").c_str();
+
+                std::string value = Crypto::getAppCode(challengeValue);
 
                 Logger::logInfo("The expected value is: " + value + ". Provided is: " + userProvidedCode);
 
@@ -658,6 +663,51 @@ namespace Session
             connection->close();
             return std::nullopt; // Return false on exception
         }
+        return std::nullopt;
+    }
+
+    std::optional<std::string> getChallengeCode(std::shared_ptr<cgicc::Cgicc> cgi)
+    {
+        // Get the value from the pending session token
+        Logger::logInfo("Reached getChallengeCode() function");
+
+        auto connection = Database::GetConnection(); // Get a database connection
+
+        // Search for the challenge code for the pending_session_token
+        std::shared_ptr<sql::PreparedStatement> selectStatement(connection->prepareStatement(
+            "SELECT value FROM pending_session_tokens WHERE token = ?"));
+
+        std::optional<std::string> userProvidedToken = getCookieToken(cgi, "PENDING_SESSION_TOKEN");
+        if (!userProvidedToken.has_value())
+        {
+            Logger::logWarning("No provided token");
+            return std::nullopt;
+        }
+
+        Logger::logInfo("User provided token: " + userProvidedToken.value());
+
+        selectStatement->setString(1, userProvidedToken.value());
+        try
+        {
+            std::unique_ptr<sql::ResultSet> res(selectStatement->executeQuery());
+
+            // Is a valid token
+            if (res->next())
+            {
+                std::string challengeValue = res->getString("value").c_str();
+                // return the challenge value
+                return challengeValue;
+            }
+        }
+        catch (sql::SQLException &e)
+        {
+            std::string output = "Cannot get the challenge code: ";
+            output += e.what(); // Log any SQL exceptions that occur during execution
+            Logger::logCritical(output);
+            connection->close();
+            return std::nullopt; // Return false on exception
+        }
+        return std::nullopt;
     }
 
     std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi)

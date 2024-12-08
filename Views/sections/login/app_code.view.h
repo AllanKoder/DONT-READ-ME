@@ -8,7 +8,7 @@ namespace Views
     class AppCode : public View
     {
     public:
-        AppCode(std::shared_ptr<cgicc::Cgicc> cgi);
+        AppCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string challengeCode);
     };
 }
 

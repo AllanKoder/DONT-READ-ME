@@ -71,7 +71,7 @@ namespace Controllers
             Logger::logInfo("User is trying to log out while logged in.");
             // Redirect to login
             return Views::Redirect(cgi, "/cgi-bin/login.cgi")
-                .setNotification(Views::NotificationType::SUCCESS, "Not Logged in");
+                .setNotification(Views::NotificationType::WARNING, "Not Logged in");
         }
 
         // Delete all session tokens of user Id
@@ -183,7 +183,15 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "Failed, or you are a bad actor");
         }
 
-        return Views::AppCode(cgi);
+        std::optional<std::string> challengeCode = Session::getChallengeCode(cgi);
+
+        if (!challengeCode.has_value())
+        {
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi")
+                .setNotification(Views::NotificationType::WARNING, "Failed to get challenge code");
+        }
+
+        return Views::AppCode(cgi, challengeCode.value());
     }
 
     Views::View appCodePost(std::shared_ptr<cgicc::Cgicc> cgi)
@@ -209,7 +217,7 @@ namespace Controllers
         if (!loginResult.has_value())
         {
             return Views::Redirect(cgi, "/cgi-bin/appCode.cgi")
-                .setNotification(Views::NotificationType::WARNING, "Email code was not correct");
+                .setNotification(Views::NotificationType::WARNING, "Challenge code was not correct");
         }
 
         // Set the session token

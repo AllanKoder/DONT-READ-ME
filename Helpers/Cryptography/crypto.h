@@ -10,7 +10,7 @@ namespace Crypto
     std::string getRandomToken();
     std::string getRandomSixCharCode();
     std::string hmac(const std::string& data);
-    // 2 character long code that regenerates every 30 seconds
-    std::string getAppCode();
+    // 6 character code from challenge
+    std::string getAppCode(std::string challenge);
 }
 #endif

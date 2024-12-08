@@ -47,6 +47,9 @@ namespace Session
     // for submitting the 2 character code for admins only
     std::optional<LoginResult> confirmAuthCode(std::shared_ptr<cgicc::Cgicc> cgi, std::string code);
 
+    // Get the challenge code for the given pending_session token
+    std::optional<std::string> getChallengeCode(std::shared_ptr<cgicc::Cgicc> cgi);
+
     // create a anti-csrf token
     std::string getCsrfToken(std::shared_ptr<cgicc::Cgicc> cgi);
 
