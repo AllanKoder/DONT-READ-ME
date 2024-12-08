@@ -20,35 +20,36 @@ namespace Views
 
     std::string View::getHeader()
     {
-        std::ostringstream outputHeader;
+        std::string outputHeader;
 
         if (!redirectUrl.empty())
         {
             // There is a redirect, set it as the header
-            outputHeader << "Status: 302 Found\n";
-            outputHeader << "Location: " << redirectUrl << "\n";
+            outputHeader += "Status: 302 Found\n";
+            outputHeader += "Location: " + redirectUrl + "\n";
         }
         else
         {
             // If there's no redirect, proceed with the normal header
-            outputHeader << "Content-Type: text/html\n";
+            outputHeader += "Content-Type: text/html\n";
         }
 
         // Add custom headers
-        outputHeader << headers;
+        outputHeader += headers;
 
         // Add cookies
         for (const auto &cookie : cookies)
         {
-            outputHeader << "Set-Cookie: " << cookie << "\n";
+            outputHeader += "Set-Cookie: " + cookie + "\n";
         }
 
-        outputHeader << "\n";
-        return outputHeader.str();
+        outputHeader += "\n";
+        return outputHeader;
     }
 
-    void View::getNotifications()
+    std::string View::getNotification()
     {
+        std::string output;
         std::string notifValue = Request::getQueryValue("notification", cgi->getEnvironment().getQueryString());
         if (!notifValue.empty())
         {
@@ -65,14 +66,15 @@ namespace Views
                 // Display notification using Notyf
                 if (type == "Success")
                 {
-                    std::cout << "notyf.success('" << message << "');\n";
+                    output += "notyf.success('" + message + "');\n";
                 }
                 else if (type == "Warning")
                 {
-                    std::cout << "notyf.error('" << message << "');\n";
+                    output += "notyf.error('" + message + "');\n";
                 }
             }
         }
+        return output;
     }
 
     View &View::setNotification(NotificationType type, const std::string &message)
@@ -84,10 +86,12 @@ namespace Views
         // Append to redirect URL as a query parameter
         if (redirectUrl.find('?') != std::string::npos)
         {
+            // Add to existing query
             redirectUrl += "&notification=" + notificationQuery;
         }
         else
         {
+            // Create query string
             redirectUrl += "?notification=" + notificationQuery;
         }
 
@@ -108,10 +112,12 @@ namespace Views
             std::cout << "<head>\n";
             std::cout << "<meta charset=\"UTF-8\">\n";
             std::cout << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+            // Title
             std::cout << "<title>" << title << "</title>\n";
+
+            // Tailwind CSS, HTMX, and notyf
             std::cout << "<script src=\"https://cdn.tailwindcss.com\"></script>\n";
             std::cout << "<script src=\"https://unpkg.com/htmx.org@2.0.3\"></script>\n";
-
             std::cout << "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css\">\n";
             std::cout << "</head>\n";
 
@@ -119,7 +125,7 @@ namespace Views
             std::cout << "<body class=\"h-full bg-white\">\n";
             std::cout << "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n";
 
-            // Header component
+            // Header component, the NavBar
             std::cout << Views::Header(cgi).Render();
 
             // Initialize Notyf
@@ -130,10 +136,11 @@ namespace Views
                 y: 'top',\
             }});\n";
 
-            getNotifications(); // Call to get notifications
+            // Call to get notifications
+            std::cout << getNotification(); 
 
+            // Scripts
             std::cout << "</script>\n";
-
             // Main content
             std::cout << "<main class=\"flex items-center justify-center h-5/6\">\n";
             std::cout << "  <div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">\n";
@@ -155,7 +162,24 @@ namespace Views
             std::cout << "</body>\n";
             std::cout << "</html>\n";
         }
-        // TODO: make this print something else in case of redirect
+        else
+        {
+            // Implement HTML-based redirect
+            std::cout << "<!DOCTYPE html>\n"
+                      << "<html lang=\"en\">\n"
+                      << "<head>\n"
+                      << "    <meta charset=\"UTF-8\">\n"
+                      << "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+                      << "    <title>Redirecting...</title>\n"
+                      << "    <meta http-equiv=\"refresh\" content=\"0; URL=" << redirectUrl << "\">\n"
+                      << "</head>\n"
+                      << "<body>\n"
+                      << "    <p>If you are not redirected automatically, "
+                      << "<a href=\"" << redirectUrl << "\">click here</a>.</p>\n"
+                      << "</body>\n"
+                      << "</html>\n";
+            return; // Exit the function after sending redirect content
+        }
     }
 
     View &View::setRedirect(const std::string &url)
