@@ -2,8 +2,6 @@
 #include "../../../Helpers/Session/session.h"
 #include "../../../Helpers/String/string_helpers.h"
 #include "../../components/csrf_token.comp.h"
-#include <sstream>
-#include <vector>
 
 namespace Views
 {

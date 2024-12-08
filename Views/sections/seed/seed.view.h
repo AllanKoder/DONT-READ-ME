@@ -6,6 +6,9 @@
 
 namespace Views
 {
+    /**
+     * @brief The result of seeding the database, a basic site that states "seeded"
+     */
     class Seed : public View 
     {
     public:
