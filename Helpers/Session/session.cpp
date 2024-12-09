@@ -317,7 +317,7 @@ namespace Session
 
                 // The code the user will input from email
                 std::string sixCharCode = Crypto::getRandomSixCharCode();
-                // Make the pending session token, (still need to do MFA2)
+                // Make the pending session token, (user still needs to do MFA2)
                 std::optional<std::string> token = createPendingSessionToken(userId, "email", sixCharCode);
 
                 if (token.has_value())
