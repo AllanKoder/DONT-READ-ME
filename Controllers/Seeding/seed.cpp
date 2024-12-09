@@ -4,6 +4,7 @@
 #include "../../Logger/logger.h"
 #include "../../Views/sections/seed/seed.view.h"
 #include "../../Helpers/Database/Users/users.h"
+#include "../../Helpers/String/string_helpers.h"
 #include <iostream>
 
 namespace Controllers
@@ -14,22 +15,22 @@ namespace Controllers
         {
             // Create admin
             auto admin = Database::Requests::CreateUserRequest(
-                "admin",
-                "admin@admin.com",
+                StringHelpers::sanitizeString("admin"),
+                StringHelpers::sanitizeString("admin@admin.com"),
                 "admin",
                 "admin");
 
             // Create user1
             auto user1 = Database::Requests::CreateUserRequest(
-                "user",
-                "john.lennon@apple.com",
+                StringHelpers::sanitizeString("user"),
+                StringHelpers::sanitizeString("john.lennon@apple.com"),
                 "password",
                 "user");
 
             // Create user2
             auto user2 = Database::Requests::CreateUserRequest(
-                "user32",
-                "john112@apple.com",
+                StringHelpers::sanitizeString("user32"),
+                StringHelpers::sanitizeString("john112@apple.com"),
                 "password1",
                 "user");
 

@@ -51,8 +51,8 @@ namespace Controllers
             return Views::Redirect(cgi, "/cgi-bin/blogs.cgi").setNotification(Views::NotificationType::WARNING, "You almost got hacked with a CSRF attack!");
         }
 
-        std::string username = cgi->getElement("username")->getValue();
-        std::string email = cgi->getElement("email")->getValue();
+        std::string username = StringHelpers::sanitizeString(cgi->getElement("username")->getValue());
+        std::string email = StringHelpers::sanitizeString(cgi->getElement("email")->getValue());
         std::string password = cgi->getElement("password")->getValue();
 
         // Make sure nothing is empty, and have a password policy

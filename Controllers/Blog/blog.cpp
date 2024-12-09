@@ -173,7 +173,7 @@ namespace Controllers
         if (userInfo.has_value() == false)
         {
             // Need to be logged in
-            return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to view blogs!");
+            return Views::Redirect(cgi, "/cgi-bin/login.cgi").setNotification(Views::NotificationType::WARNING, "Need to be logged in to create blogs!");
         }
 
         return Views::CreateBlog(cgi);
@@ -251,8 +251,17 @@ namespace Controllers
         }
 
         // Get form data
-        std::string title = cgi->getElement("title")->getValue();
-        std::string content = cgi->getElement("content")->getValue();
+        std::string title = StringHelpers::sanitizeString(cgi->getElement("title")->getValue());
+        std::string content = StringHelpers::sanitizeString(cgi->getElement("content")->getValue());
+
+        // Check if the user has filled the parameters for posting
+        if (title.empty() || content.empty())
+        {
+            Logger::logWarning("Invalid parameters for updating blog");
+            // Invalid parameters, notify and redirect back to post
+            return Views::Redirect(cgi, "/cgi-bin/updateBlog.cgi/" + std::to_string(blogId.value()))
+                .setNotification(Views::NotificationType::WARNING, "Please fill out all fields.");
+        }
 
         try
         {
@@ -292,11 +301,11 @@ namespace Controllers
         }
 
         // Check the forms, if the values are correct
-        std::string dtoTitle = StringHelpers::sanitizeString(cgi->getElement("title")->getValue());
-        std::string dtoContent = StringHelpers::sanitizeString(cgi->getElement("content")->getValue());
+        std::string title = StringHelpers::sanitizeString(cgi->getElement("title")->getValue());
+        std::string content = StringHelpers::sanitizeString(cgi->getElement("content")->getValue());
 
         // Check if the user has filled the parameters for posting
-        if (dtoTitle.empty() || dtoContent.empty())
+        if (title.empty() || content.empty())
         {
             Logger::logWarning("Invalid parameters for creating blog");
             // Invalid parameters, notify and redirect back to post
@@ -311,9 +320,9 @@ namespace Controllers
                 .setNotification(Views::NotificationType::WARNING, "You almost got hacked! someone tried to csrf you!");
         }
 
-        int dtoUserId = userInfo.value().id;
+        int userId = userInfo.value().id;
 
-        Database::Requests::BlogPost blogPost(dtoTitle, dtoContent, dtoUserId);
+        Database::Requests::BlogPost blogPost(title, content, userId);
 
         // Create the blog under the user
         try

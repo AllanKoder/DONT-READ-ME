@@ -33,8 +33,8 @@ namespace Controllers
         }
 
         // Get the post data
-        std::string email = cgi->getElement("email")->getValue();
-        std::string password = cgi->getElement("password")->getValue();
+        std::string email = StringHelpers::sanitizeString(cgi->getElement("email")->getValue());
+        std::string password = StringHelpers::sanitizeString(cgi->getElement("password")->getValue());
 
         if (email.empty() || password.empty())
         {
