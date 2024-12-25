@@ -61,7 +61,7 @@ namespace Views
             {
                 std::string type = parts[0];
                 std::string message = parts[1];
-                message = StringHelpers::urlDecode(message); // Decode the message
+                message = StringHelpers::sanitizeString(StringHelpers::urlDecode(message)); // Decode the message
 
                 // Display notification using Notyf
                 if (type == "Success")
