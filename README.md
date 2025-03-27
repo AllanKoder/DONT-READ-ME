@@ -13,6 +13,25 @@ DON'T README is a pretty average and boring blogging site, your usual stuff. But
 - CSRF protection
 - Sliding expiration session
 
+# Images
+_Homepage:_<br>
+![image](https://github.com/user-attachments/assets/a431f746-a0ae-4d3c-a852-c4deb9d0509b)
+
+<br>
+
+_Creating a Blog:_<br>
+![image](https://github.com/user-attachments/assets/9d7858b7-eb2d-4971-898e-cc558aee0ac7)
+
+<br>
+
+_2-MFA:_<br>
+![image](https://github.com/user-attachments/assets/2bfb5275-169b-4a1c-80a3-1975f1e2dbea)
+
+<br>
+
+_3-MFA (if Admin):_<br>
+![image](https://github.com/user-attachments/assets/bbf69ba3-c64a-466b-8b04-2af432359b0e)
+
 ## High-level Blog Architecture
 
 ```mermaid
